@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Loyalty Program | JOFA Essence{% endblock %}
+
+{% block content %}
+<section class="py-32 bg-jofa-beige min-h-screen overflow-x-hidden">
+    <div class="container mx-auto px-6 md:px-12">
+        <!-- Hero Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center mb-32">
+            <div data-aos="fade-right">
+                <h4 class="text-[11px] uppercase tracking-[0.4em] font-black text-jofa-gold mb-6">JOFA Skincare Loyalty Program</h4>
+                <h1 class="text-6xl md:text-8xl serif text-jofa-onyx mb-10 leading-none">
+                    ELEVATE<br>
+                    <span class="italic text-jofa-gold">Your Glow</span>
+                </h1>
+                <p class="text-xl text-gray-600 font-medium leading-relaxed max-w-lg mb-12">
+                    Our loyalty program is designed to reward your commitment to natural beauty. Earn points with every purchase and unlock exclusive benefits as you ascend through our tiers.
+                </p>
+                <div class="flex items-center space-x-6">
+                    <a href="{% url 'products:product_list' %}" class="btn-gold px-10 py-5 uppercase text-xs tracking-widest font-bold shadow-2xl">Start Your Journey</a>
+                </div>
+            </div>
+            <div class="relative" data-aos="fade-left">
+                <div class="aspect-[4/5] bg-cover bg-center shadow-3xl rounded-sm"
+                    style="background-image: url('{% static 'img/loyalty_hero.jpg' %}');">
+                </div>
+                <!-- Floating Info Card -->
+                <div class="absolute bottom-0 left-0 translate-y-1/2 bg-jofa-onyx p-8 text-white shadow-2xl max-w-xs">
+                    <h3 class="serif text-3xl mb-4 text-jofa-gold">12 Months</h3>
+                    <p class="text-[10px] uppercase tracking-widest font-bold opacity-60">Program Validity</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ways to Earn Section -->
+        <div class="mb-32">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="text-4xl serif text-jofa-onyx mb-4">How to Earn Points</h2>
+                <div class="h-1 w-20 bg-jofa-gold mx-auto"></div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for method in earn_methods %}
+                <div class="bg-white p-10 shadow-xl hover:shadow-2xl transition-shadow border-b-4 border-jofa-gold" data-aos="fade-up" data-aos-delay="{{ forloop.counter|add:100 }}">
+                    <div class="text-jofa-gold mb-6">
+                        {% if method.icon_svg %}
+                            {{ method.icon_svg|safe }}
+                        {% else %}
+                            <svg class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        {% endif %}
+                    </div>
+                    <h3 class="text-xl font-black uppercase tracking-widest text-jofa-onyx mb-4">{{ method.name }}</h3>
+                    <p class="text-gray-500 text-sm mb-6 leading-relaxed">{{ method.description }}</p>
+                    <div class="bg-jofa-beige px-4 py-2 inline-block">
+                        <span class="text-xs font-black uppercase tracking-widest text-jofa-gold">{{ method.points_awarded }}</span>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-span-full text-center py-12">
+                    <p class="text-gray-400 italic">No earning methods defined yet.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Loyalty Tiers Section -->
+        <div>
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="text-4xl serif text-jofa-onyx mb-4">Loyalty Tiers</h2>
+                <p class="text-gray-500 max-w-xl mx-auto">The more you glow, the more you grow. Reach new milestones and enjoy exclusive rewards.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+                {% for tier in tiers %}
+                <div class="bg-jofa-onyx p-12 shadow-2xl relative overflow-hidden group" data-aos="fade-up" data-aos-delay="{{ forloop.counter|add:100 }}">
+                    <!-- Background Decoration -->
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-150 duration-700"></div>
+                    
+                    <div class="relative z-10">
+                        <div class="flex justify-between items-start mb-10">
+                            <div>
+                                <h4 class="text-[10px] uppercase tracking-[0.3em] font-black text-jofa-gold mb-2">Milestone: {{ tier.min_points }} pts</h4>
+                                <h3 class="text-3xl serif text-white">{{ tier.name }}</h3>
+                            </div>
+                            <div class="h-12 w-12 rounded-full flex items-center justify-center border border-jofa-gold text-jofa-gold">
+                                <span class="text-lg font-black">{{ forloop.counter }}</span>
+                            </div>
+                        </div>
+
+                        <p class="text-gray-400 text-sm mb-10 leading-relaxed">{{ tier.description }}</p>
+
+                        <div class="space-y-4">
+                            <p class="text-[9px] uppercase tracking-[0.4em] font-black text-jofa-gold/60 mb-4">Exclusive Benefits</p>
+                            {% for benefit in tier.benefits.all %}
+                            <div class="flex items-start space-x-3">
+                                <span class="text-jofa-gold mt-1">✦</span>
+                                <span class="text-sm text-gray-300 font-medium">{{ benefit.benefit }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Bottom Accent Line -->
+                    <div class="absolute bottom-0 left-0 h-1 w-full bg-jofa-gold" style="background-color: {{ tier.color_code }};"></div>
+                </div>
+                {% empty %}
+                <div class="col-span-full text-center py-12">
+                    <p class="text-gray-400 italic">No loyalty tiers defined yet. Check back soon!</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Footer Note -->
+        <div class="mt-32 text-center" data-aos="fade-up">
+            <p class="text-2xl serif italic text-jofa-onyx mb-8">Because your glow deserves rewards</p>
+            <div class="inline-block bg-white px-12 py-8 shadow-2xl rounded-sm">
+                <p class="text-[10px] uppercase tracking-[0.3em] font-black text-gray-400 mb-2">To join our loyalty program, contact:</p>
+                <a href="tel:+237653239120" class="text-2xl font-bold text-jofa-onyx hover:text-jofa-gold transition-colors">+237 653 239 120</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

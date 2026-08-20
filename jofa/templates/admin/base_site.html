@@ -1,0 +1,170 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | JOFA Essence Admin{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    /* JOFA Brand Colors */
+    :root {
+        --primary: #0F2D32;    /* Onyx */
+        --accent: #A58B7C;     /* Gold */
+        --secondary: #F3EBE5;  /* Beige */
+        --header-bg: #0F2D32;
+        --header-color: #F3EBE5;
+        --link-color: #A58B7C;
+    }
+
+    /* Header Styling */
+    #header {
+        background: var(--header-bg) !important;
+        color: var(--header-color) !important;
+        border-bottom: 3px solid var(--accent);
+        padding: 15px 40px;
+    }
+
+    #branding h1 {
+        color: var(--accent) !important;
+        font-family: 'Outfit', sans-serif !important;
+        font-weight: 800 !important;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    #user-tools {
+        color: var(--header-color) !important;
+    }
+
+    #user-tools a {
+        color: var(--accent) !important;
+        font-weight: 600;
+    }
+
+    /* Breadcrumbs */
+    .breadcrumbs {
+        background: #fff !important;
+        border-bottom: 1px solid #eee;
+        padding: 10px 40px !important;
+    }
+
+    .breadcrumbs a {
+        color: var(--primary) !important;
+    }
+
+    /* Buttons */
+    .button, input[type=submit], input[type=button], .submit-row input, a.button {
+        background: var(--primary) !important;
+        border-radius: 0 !important;
+        border: none !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        padding: 10px 20px !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .button:hover, input[type=submit]:hover {
+        background: var(--accent) !important;
+        transform: translateY(-1px);
+    }
+
+    .button.default, input[type=submit].default {
+        background: var(--accent) !important;
+    }
+
+    .button.default:hover, input[type=submit].default:hover {
+        background: var(--primary) !important;
+    }
+
+    /* Side Menu (Mobile) */
+    @media (max-width: 767px) {
+        #header {
+            padding: 10px 20px;
+        }
+        .breadcrumbs {
+            padding: 10px 20px !important;
+        }
+        /* Add a floating back button on mobile */
+        .mobile-back-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: var(--accent);
+            color: white !important;
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 800;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+    }
+
+    /* Custom Back to Site Link */
+    .viewsite-link {
+        margin-left: 20px;
+        color: #fff !important;
+        border: 1px solid var(--accent);
+        padding: 5px 15px;
+        font-size: 11px;
+    }
+
+    /* Module Headers */
+    .module h2, .module caption, .inline-group h2 {
+        background: var(--primary) !important;
+        color: var(--accent) !important;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* Sidebar Styling */
+    #content-main {
+        padding: 40px !important;
+    }
+
+    div.breadcrumbs {
+        margin-bottom: 20px;
+    }
+
+    /* Tables */
+    table thead th {
+        background: var(--primary) !important;
+        color: #fff !important;
+        border-bottom: 2px solid var(--accent) !important;
+        text-transform: uppercase;
+        font-size: 11px;
+        letter-spacing: 0.05em;
+    }
+
+    table thead th a {
+        color: #fff !important;
+    }
+
+    .results table tbody tr.selected {
+        background-color: var(--secondary) !important;
+    }
+</style>
+{% endblock %}
+
+{% block branding %}
+<div id="branding">
+    <h1 id="site-name">
+        <a href="{% url 'admin:index' %}">JOFA <span style="font-weight: 300;">SKINCARE</span></a>
+    </h1>
+</div>
+{% endblock %}
+
+{% block userlinks %}
+    <a href="/" class="viewsite-link">View Website</a>
+    {{ block.super }}
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <a href="/" class="mobile-back-btn lg:hidden">← Storefront</a>
+{% endblock %}

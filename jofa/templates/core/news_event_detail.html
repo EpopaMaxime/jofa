@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ item.title }} | JOFA Essence{% endblock %}
+
+{% block content %}
+<article class="bg-white min-h-screen">
+    <!-- Hero Header -->
+    <header class="relative py-32 bg-jofa-beige overflow-hidden">
+        <div class="container mx-auto px-6 md:px-12 relative z-10 text-center max-w-4xl">
+            <nav class="mb-12 flex items-center justify-center space-x-4 text-[10px] uppercase tracking-widest font-black">
+                <a href="{% url 'core:news_event_list' %}" class="text-gray-400 hover:text-jofa-gold transition-colors">Journal</a>
+                <span class="text-jofa-gold">/</span>
+                <span class="text-jofa-onyx">{{ item.get_type_display }}</span>
+            </nav>
+            
+            <h1 class="text-5xl md:text-7xl serif text-jofa-onyx mb-12 font-black leading-tight tracking-tight">
+                {{ item.title }}
+            </h1>
+
+            <div class="flex flex-wrap justify-center items-center gap-8 text-[11px] font-black uppercase tracking-widest text-jofa-gold">
+                <div class="flex items-center space-x-3">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>{{ item.date|default:item.created_at|date:"F d, Y" }}</span>
+                </div>
+                {% if item.location %}
+                <div class="flex items-center space-x-3">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span>{{ item.location }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Content -->
+    <div class="container mx-auto px-6 md:px-12 -mt-16 relative z-20 pb-32">
+        <div class="max-w-5xl mx-auto">
+            {% if item.image %}
+            <div class="aspect-video mb-24 shadow-3xl overflow-hidden border-8 border-white">
+                <img src="{{ item.image.url }}" alt="{{ item.title }}" class="w-full h-full object-cover">
+            </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
+                <!-- Sidebar / Share (Optional) -->
+                <aside class="lg:col-span-3 lg:sticky lg:top-32 h-fit">
+                    <div class="border-t border-gray-100 pt-8">
+                        <h4 class="text-[10px] uppercase tracking-widest font-black text-jofa-gold mb-8">Share Entry</h4>
+                        <div class="flex lg:flex-col space-x-6 lg:space-x-0 lg:space-y-6">
+                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="text-gray-400 hover:text-jofa-onyx transition-colors text-[9px] font-black uppercase tracking-widest">Facebook</a>
+                            <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ item.title|urlencode }}" target="_blank" class="text-gray-400 hover:text-jofa-onyx transition-colors text-[9px] font-black uppercase tracking-widest">Twitter</a>
+                            <a href="https://wa.me/?text={{ item.title|urlencode }}%20{{ request.build_absolute_uri }}" target="_blank" class="text-gray-400 hover:text-jofa-onyx transition-colors text-[9px] font-black uppercase tracking-widest">WhatsApp</a>
+                            <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri }}" target="_blank" class="text-gray-400 hover:text-jofa-onyx transition-colors text-[9px] font-black uppercase tracking-widest">LinkedIn</a>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Body Text -->
+                <div class="lg:col-span-9">
+                    <div class="prose prose-xl prose-jofa max-w-none text-gray-700 leading-loose font-light">
+                        {{ item.content|linebreaks }}
+                    </div>
+                    
+                    <!-- Navigation Bottom -->
+                    <div class="mt-24 pt-12 border-t border-gray-100 flex justify-between">
+                        <a href="{% url 'core:news_event_list' %}" class="flex items-center space-x-4 text-[10px] font-black uppercase tracking-widest text-jofa-onyx hover:text-jofa-gold transition-all">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            </svg>
+                            <span>Back to Journal</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</article>
+
+<style>
+    .prose-jofa p {
+        margin-bottom: 2.5rem;
+    }
+    .prose-jofa h2 {
+        font-family: serif;
+        font-size: 2.5rem;
+        color: #0F2D32;
+        margin-top: 4rem;
+        margin-bottom: 2rem;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "admin/logout.html" %}
+
+{% block content %}
+<script>
+    // Automatically redirect to admin login after logout
+    window.location.href = "{% url 'admin:login' %}";
+</script>
+<div id="content-main">
+    <p>You have been logged out. Redirecting to login...</p>
+</div>
+{% endblock %}
