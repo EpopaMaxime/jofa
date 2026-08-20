@@ -3,7 +3,7 @@ name: Déploiement Automatique Namecheap
 on:
   push:
     branches:
-      - main # Déclenche le déploiement quand on pousse sur la branche main
+      - main # Remplacez par le nom de votre branche si nécessaire
 
 jobs:
   web-deploy:
@@ -13,11 +13,11 @@ jobs:
     - name: Récupérer le code du dépôt
       uses: actions/checkout@v4
       
-    - name: Synchroniser les fichiers via SFTP
+    - name: Synchroniser les fichiers via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        port: 2102 # Port standard SSH/SFTP chez Namecheap
+        port: 21 # Basculé sur le port FTP standard pour éviter le timeout
         server-dir: /home/jofafzby/ # Modifiez si votre site est dans un sous-dossier
