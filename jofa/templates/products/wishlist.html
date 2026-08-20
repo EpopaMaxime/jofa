@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Essence Wishlist | JOFA{% endblock %}
+
+{% block content %}
+<section class="py-32 bg-jofa-beige min-h-screen">
+    <div class="container mx-auto px-6 md:px-12">
+        <div class="max-w-4xl mx-auto text-center mb-24">
+            <span class="text-xs uppercase tracking-[0.5em] font-black text-jofa-gold mb-8 block">Your Curated
+                Collection</span>
+            <h1 class="text-6xl md:text-7xl serif text-jofa-onyx mb-12 font-black leading-tight">My <span
+                    class="text-jofa-gold italic">Wishlist</span></h1>
+            <p class="text-lg text-gray-600 font-medium">Your most desired essences, gathered in one sacred space.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16">
+            {% for product in wishlist.products.all %}
+            <div class="group bg-jofa-beige p-8 shadow-sm border border-gray-50 flex flex-col relative">
+                <!-- Remove from Wishlist -->
+                <a href="{% url 'products:wishlist_remove' product.id %}"
+                    class="absolute top-4 right-4 text-gray-300 hover:text-red-400 transition-colors z-20"
+                    title="Remove">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </a>
+
+                <a href="{{ product.get_absolute_url }}"
+                    class="block overflow-hidden aspect-square mb-6 bg-jofa-beige">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000">
+                    {% endif %}
+                </a>
+
+                <div class="text-center flex-grow flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-2xl serif text-jofa-onyx mb-2 font-black italic">{{ product.name }}</h3>
+                        <p class="text-[10px] uppercase tracking-widest font-black text-gray-400 mb-4">{{ product.category.name }}</p>
+                        <p class="text-xl font-bold text-jofa-onyx mb-8">XAF {{ product.price }}</p>
+                    </div>
+
+                    <form action="{% url 'orders:cart_add' product.id %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit"
+                            class="w-full btn-gold py-3 md:py-4 text-[10px] uppercase tracking-[0.3em] font-black">Move to
+                            Cart</button>
+                    </form>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-full py-32 text-center bg-jofa-beige border border-dashed border-gray-200">
+                <p class="text-gray-400 italic text-2xl mb-8">Your wishlist is currently empty.</p>
+                <a href="{% url 'products:product_list' %}"
+                    class="btn-gold px-6 md:px-8 md:px-12 py-3 md:py-5 inline-block text-[10px] uppercase tracking-[0.2em] font-bold">Discover
+                    the Collection</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

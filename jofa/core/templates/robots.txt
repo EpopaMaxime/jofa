@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /accounts/
+Allow: /
+
+Sitemap: https://jofaskincare.com/sitemap.xml
+Sitemap: https://www.jofaskincare.com/sitemap.xml

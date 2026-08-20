@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Our Artisans | JOFA Essence{% endblock %}
+
+{% block content %}
+<section class="py-24 bg-jofa-beige min-h-screen">
+    <div class="container mx-auto px-6 md:px-12">
+        <div class="text-center mb-24 max-w-3xl mx-auto" data-aos="fade-up">
+            <span class="text-xs uppercase tracking-[0.5em] text-jofa-gold font-black mb-6 block" data-aos="fade-up" data-aos-delay="100">The Artisans</span>
+            <h1 class="text-6xl serif text-jofa-onyx mb-8 font-black tracking-tight" data-aos="fade-up" data-aos-delay="200">Meet Our <span class="text-jofa-gold italic">Visionaries</span></h1>
+            <p class="text-xl text-gray-600 font-medium leading-relaxed italic" data-aos="fade-up" data-aos-delay="300">
+                Behind every bottle of JOFA Essence is a dedicated team of scientists, botanists, and dreamers committed to your natural radiance.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16">
+            {% for member in members %}
+            <a href="{% url 'core:team_detail' member.slug %}" class="group block" data-aos="fade-up" data-aos-delay="{{ forloop.counter }}00">
+                <div class="aspect-[3/4] overflow-hidden mb-8 shadow-xl relative bg-white transition-all duration-700 group-hover:shadow-2xl">
+                    {% if member.image %}
+                    <img src="{{ member.image.url }}" alt="{{ member.name }}"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000">
+                    {% else %}
+                    <img src="{% static 'img/team_placeholder.jpg' %}"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 opacity-60"
+                        alt="Team Member">
+                    {% endif %}
+                    
+                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-500 flex items-center justify-center">
+                        <span class="bg-white text-black px-8 py-3 text-[10px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 shadow-lg">View Bio</span>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <h4 class="text-3xl serif text-jofa-onyx font-bold mb-2 group-hover:text-jofa-gold transition-colors">{{ member.name }}</h4>
+                    <p class="text-xs uppercase tracking-widest text-jofa-gold font-black">{{ member.role }}</p>
+                </div>
+            </a>
+            {% empty %}
+            <div class="col-span-full text-center py-24 border-2 border-dashed border-gray-200">
+                <p class="text-gray-400 italic text-xl">Our team is currently gathering in the atelier. Check back soon!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

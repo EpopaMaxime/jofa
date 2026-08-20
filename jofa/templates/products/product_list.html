@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+
+{% block title %}Shop All | JOFA{% endblock %}
+
+{% block content %}
+<section class="py-24 bg-jofa-beige min-h-screen">
+    <div class="container mx-auto px-6 md:px-12">
+        <div class="flex flex-col md:flex-row justify-between items-end mb-16" data-aos="fade-up">
+            <div class="max-w-2xl">
+                <h1 class="text-6xl serif text-jofa-onyx mb-6 tracking-tight">The <span class="text-jofa-gold">Collection</span></h1>
+                <p class="text-lg text-gray-600 font-medium leading-relaxed">Our curated selection of botanical essentials, meticulously formulated for your skin's unique journey.</p>
+            </div>
+            <!-- Layout Toggle -->
+            <div class="hidden md:flex items-center bg-white/50 backdrop-blur-sm p-1 rounded-sm border border-gray-100 shadow-sm no-print mb-1">
+                <button onclick="setGridLayout('focus')" id="btn-focus" class="p-2 transition-all duration-300 rounded-sm hover:bg-white" title="Focus View">
+                    <svg class="w-5 h-5 text-jofa-onyx" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                </button>
+                <button onclick="setGridLayout('compact')" id="btn-compact" class="p-2 transition-all duration-300 rounded-sm hover:bg-white" title="Compact View">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM9 5a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1V5zM4 10a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2zM9 10a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2zM14 10a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2zM4 15a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2zM9 15a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2zM14 15a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2z" /></svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="mb-12" data-aos="fade-up">
+            <form method="get" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
+                <!-- Search -->
+                <div class="space-y-2">
+                    <label class="text-[9px] font-black uppercase tracking-widest text-gray-400">Search Essence</label>
+                    <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Floral, Serum..."
+                        class="w-full bg-white border border-gray-200 p-4 text-[10px] font-bold outline-none focus:ring-1 ring-jofa-gold">
+                </div>
+
+                <!-- Category -->
+                <div class="space-y-2">
+                    <label class="text-[9px] font-black uppercase tracking-widest text-gray-400">Category</label>
+                    <select name="category" class="w-full bg-white border border-gray-200 p-4 text-[10px] font-bold outline-none focus:ring-1 ring-jofa-gold appearance-none cursor-pointer">
+                        <option value="">All Categories</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.slug }}" {% if request.GET.category == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Objective -->
+                <div class="space-y-2">
+                    <label class="text-[9px] font-black uppercase tracking-widest text-gray-400">Objective</label>
+                    <select name="objective" class="w-full bg-white border border-gray-200 p-4 text-[10px] font-bold outline-none focus:ring-1 ring-jofa-gold appearance-none cursor-pointer">
+                        <option value="">All Objectives</option>
+                        {% for obj in objectives %}
+                        <option value="{{ obj.slug }}" {% if request.GET.objective == obj.slug %}selected{% endif %}>{{ obj.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Price Range -->
+                <div class="space-y-2">
+                    <label class="text-[9px] font-black uppercase tracking-widest text-gray-400">Price Range (XAF)</label>
+                    <div class="flex space-x-2">
+                        <input type="number" name="min_price" value="{{ request.GET.min_price }}" placeholder="Min"
+                            class="w-1/2 bg-white border border-gray-200 p-4 text-[10px] font-bold outline-none focus:ring-1 ring-jofa-gold">
+                        <input type="number" name="max_price" value="{{ request.GET.max_price }}" placeholder="Max"
+                            class="w-1/2 bg-white border border-gray-200 p-4 text-[10px] font-bold outline-none focus:ring-1 ring-jofa-gold">
+                    </div>
+                </div>
+
+                <!-- Sort By -->
+                <div class="space-y-2">
+                    <label class="text-[9px] font-black uppercase tracking-widest text-gray-400">Sort By</label>
+                    <select name="sort" class="w-full bg-white border border-gray-200 p-4 text-[10px] font-bold outline-none focus:ring-1 ring-jofa-gold appearance-none cursor-pointer">
+                        <option value="newest" {% if request.GET.sort == 'newest' %}selected{% endif %}>Newest Arrivals</option>
+                        <option value="price_asc" {% if request.GET.sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                        <option value="price_desc" {% if request.GET.sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                    </select>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex space-x-2">
+                    <button type="submit" class="flex-grow bg-jofa-onyx text-white p-4 text-[10px] font-black uppercase tracking-widest hover:bg-jofa-gold transition-colors shadow-lg">Filter</button>
+                    <a href="{% url 'products:product_list' %}" class="bg-gray-100 text-gray-400 p-4 hover:text-jofa-onyx transition-colors" title="Clear Filters">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <div id="product-grid"
+            class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 transition-all duration-700 ease-in-out">
+            {% for product in products %}
+            <div
+                class="group flex flex-col bg-white shadow-sm hover:shadow-xl transition-all duration-500 rounded-sm overflow-hidden"
+                data-aos="fade-up" data-aos-delay="{{ forloop.counter }}00">
+                
+                <!-- Product Image Container -->
+                <div class="relative aspect-[4/5] overflow-hidden bg-jofa-beige">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000">
+                    {% else %}
+                    <img src="https://images.unsplash.com/photo-1556228720-195a672e8a03?q=80&w=800&auto=format&fit=crop"
+                        alt="Placeholder"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 opacity-90">
+                    {% endif %}
+
+                    <!-- Badges -->
+                    <div class="absolute top-3 left-3 flex flex-col space-y-1.5 z-20">
+                        <span class="bg-jofa-beige/90 backdrop-blur-sm text-black text-[7px] font-black uppercase tracking-widest px-2 py-1 shadow-sm">{{ product.category.name }}</span>
+                        
+                        {% if product.discount_percentage > 0 %}
+                        <span class="bg-black/90 backdrop-blur-sm text-white text-[7px] font-black uppercase tracking-widest px-2 py-1 shadow-sm">{{ product.discount_percentage }}% OFF</span>
+                        {% endif %}
+
+                        {% if product.objective %}
+                        <span class="bg-jofa-gold/90 backdrop-blur-sm text-white text-[7px] font-black uppercase tracking-widest px-2 py-1 shadow-sm">{{ product.objective.name }}</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Wishlist Icon -->
+                    <div class="absolute top-3 right-3 z-30">
+                        {% if request.user.is_authenticated and product in request.user.wishlist.products.all %}
+                        <a href="{% url 'products:wishlist_remove' product.id %}"
+                            class="text-red-500 hover:text-red-700 transition-colors" title="Remove from Wishlist">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path fill-rule="evenodd"
+                                    d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                        {% else %}
+                        <a href="{% url 'products:wishlist_add' product.id %}"
+                            class="text-gray-400 hover:text-jofa-gold transition-colors" title="Add to Wishlist">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                        </a>
+                        {% endif %}
+                    </div>
+
+                    <!-- Quick Add Button (Visible on Hover) -->
+                    <div class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10">
+                        <form action="{% url 'orders:cart_add' product.id %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="bg-white text-jofa-onyx px-4 py-2 text-[9px] font-black uppercase tracking-widest hover:bg-jofa-gold hover:text-white transition-colors shadow-xl">
+                                Add to Cart
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Product Details (Always Visible) -->
+                <a href="{{ product.get_absolute_url }}" class="p-4 flex flex-col flex-grow">
+                    <h3 class="text-sm serif text-jofa-onyx mb-1 font-bold line-clamp-1">{{ product.name }}</h3>
+                    <p class="text-[7px] uppercase tracking-widest font-black text-gray-400 mb-2">{{ product.get_skin_type_display }}</p>
+                    <div class="mt-auto flex justify-between items-center">
+                        <p class="text-[11px] font-bold text-jofa-onyx">
+                            {% if product.has_discount %}
+                            <span class="line-through text-gray-300 text-[9px] mr-1.5">XAF {{ product.price }}</span>
+                            XAF {{ product.get_discounted_price|floatformat:0 }}
+                            {% else %}
+                            XAF {{ product.price|floatformat:0 }}
+                            {% endif %}
+                        </p>
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <p class="col-span-full text-center py-24 text-gray-500 italic">No products found in this category.</p>
+            {% endfor %}
+        </div>
+
+        {% if is_paginated %}
+        <div class="mt-16 flex justify-center space-x-4">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}"
+                class="text-jofa-gold uppercase text-[10px] tracking-widest font-bold">Prev</a>
+            {% endif %}
+            <span class="text-[10px] uppercase tracking-widest font-bold italic">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}"
+                class="text-jofa-gold uppercase text-[10px] tracking-widest font-bold">Next</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+{% block extra_js %}
+<script>
+    function setGridLayout(mode) {
+        const grid = document.getElementById('product-grid');
+        const btnFocus = document.getElementById('btn-focus');
+        const btnCompact = document.getElementById('btn-compact');
+        if (!grid || !btnFocus || !btnCompact) return;
+
+        const focusSvg = btnFocus.querySelector('svg');
+        const compactSvg = btnCompact.querySelector('svg');
+
+        if (mode === 'compact') {
+            // Compact State: 3 mobile, 4 md, 6 lg
+            grid.classList.remove('grid-cols-2', 'md:grid-cols-3', 'lg:grid-cols-4', 'gap-4');
+            grid.classList.add('grid-cols-3', 'md:grid-cols-5', 'lg:grid-cols-6', 'gap-2');
+
+            compactSvg.classList.add('text-jofa-onyx');
+            compactSvg.classList.remove('text-gray-400');
+            focusSvg.classList.add('text-gray-400');
+            focusSvg.classList.remove('text-jofa-onyx');
+            btnCompact.classList.add('bg-white', 'shadow-sm');
+            btnFocus.classList.remove('bg-white', 'shadow-sm');
+        } else {
+            // Focus State (Default): 2 mobile, 3 md, 4 lg
+            grid.classList.remove('grid-cols-3', 'md:grid-cols-5', 'lg:grid-cols-6', 'gap-2');
+            grid.classList.add('grid-cols-2', 'md:grid-cols-3', 'lg:grid-cols-4', 'gap-4');
+
+            focusSvg.classList.add('text-jofa-onyx');
+            focusSvg.classList.remove('text-gray-400');
+            compactSvg.classList.add('text-gray-400');
+            compactSvg.classList.remove('text-jofa-onyx');
+            btnFocus.classList.add('bg-white', 'shadow-sm');
+            btnCompact.classList.remove('bg-white', 'shadow-sm');
+        }
+        localStorage.setItem('jofa_gallery_layout', mode);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedLayout = localStorage.getItem('jofa_gallery_layout');
+        if (savedLayout === 'compact') {
+            setGridLayout('compact');
+        } else {
+            setGridLayout('focus');
+        }
+    });
+</script>
+{% endblock %}
+
+{% endblock %}
