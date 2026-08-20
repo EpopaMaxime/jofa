@@ -20,4 +20,4 @@ jobs:
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         port: 21 # Basculé sur le port FTP standard pour éviter le timeout
-        server-dir: /home/jofafzby/jofa_project/ # Modifiez si votre site est dans un sous-dossier
+        server-dir: / # Modifiez si votre site est dans un sous-dossier
