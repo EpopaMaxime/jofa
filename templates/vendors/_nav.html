@@ -1,0 +1,6 @@
+<nav class="flex flex-wrap gap-4 mb-10 text-[10px] uppercase tracking-widest font-black">
+    <a href="{% url 'vendors:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}text-jofa-gold{% endif %}">Overview</a>
+    <a href="{% url 'vendors:product_list' %}" class="{% if 'product' in request.resolver_match.url_name %}text-jofa-gold{% endif %}">Products</a>
+    <a href="{% url 'vendors:orders' %}" class="{% if request.resolver_match.url_name == 'orders' %}text-jofa-gold{% endif %}">Orders</a>
+    <a href="{% url 'vendors:profile_edit' %}" class="{% if request.resolver_match.url_name == 'profile_edit' %}text-jofa-gold{% endif %}">Store profile</a>
+</nav>

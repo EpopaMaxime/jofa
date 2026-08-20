@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ member.name }} | JOFA Essence{% endblock %}
+
+{% block content %}
+<section class="py-24 bg-jofa-beige min-h-screen">
+    <div class="container mx-auto px-6 md:px-12">
+        <!-- Breadcrumb -->
+        <nav class="mb-16 flex items-center space-x-4 text-[10px] uppercase tracking-widest font-black">
+            <a href="{% url 'core:team_list' %}" class="text-gray-400 hover:text-jofa-gold transition-colors">Team</a>
+            <span class="text-jofa-gold">/</span>
+            <span class="text-jofa-onyx">{{ member.name }}</span>
+        </nav>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-24 items-start">
+            <!-- Member Image -->
+            <div class="sticky top-32">
+                <div class="aspect-[4/5] bg-white shadow-3xl overflow-hidden relative border border-gray-100">
+                    {% if member.image %}
+                    <img src="{{ member.image.url }}" alt="{{ member.name }}" class="w-full h-full object-cover">
+                    {% else %}
+                    <img src="{% static 'img/team_placeholder.jpg' %}" class="w-full h-full object-cover opacity-60" alt="Team Member">
+                    {% endif %}
+                </div>
+                
+                <!-- Social Links -->
+                <div class="mt-12 flex items-center space-x-8">
+                    {% if member.linkedin_url %}
+                    <a href="{{ member.linkedin_url }}" target="_blank" class="text-gray-400 hover:text-jofa-gold transition-colors">
+                        <span class="text-[10px] font-black uppercase tracking-widest border-b border-gray-200 pb-1">LinkedIn</span>
+                    </a>
+                    {% endif %}
+                    {% if member.instagram_url %}
+                    <a href="{{ member.instagram_url }}" target="_blank" class="text-gray-400 hover:text-jofa-gold transition-colors">
+                        <span class="text-[10px] font-black uppercase tracking-widest border-b border-gray-200 pb-1">Instagram</span>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Member Details -->
+            <div class="animate-fade-in-up">
+                <span class="text-xs uppercase tracking-[0.5em] text-jofa-gold font-black mb-6 block">{{ member.role }}</span>
+                <h1 class="text-6xl md:text-7xl serif text-jofa-onyx mb-12 font-black leading-tight">{{ member.name }}</h1>
+                
+                <div class="prose prose-lg max-w-none">
+                    <p class="text-xl text-jofa-onyx font-medium leading-relaxed mb-12 italic border-l-4 border-jofa-gold pl-8">
+                        {{ member.bio }}
+                    </p>
+                    
+                    {% if member.full_bio %}
+                    <div class="text-gray-600 leading-loose text-lg font-light mb-16 space-y-8">
+                        {{ member.full_bio|linebreaks }}
+                    </div>
+                    {% endif %}
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 pt-12 border-t border-gray-200">
+                        {% if member.expertise %}
+                        <div>
+                            <h4 class="text-[10px] uppercase tracking-widest font-black text-jofa-gold mb-4">Core Expertise</h4>
+                            <p class="text-jofa-onyx font-bold text-lg tracking-tight">{{ member.expertise }}</p>
+                        </div>
+                        {% endif %}
+                        
+                        {% if member.education %}
+                        <div>
+                            <h4 class="text-[10px] uppercase tracking-widest font-black text-jofa-gold mb-4">Background</h4>
+                            <p class="text-jofa-onyx font-bold text-lg tracking-tight">{{ member.education }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Call to Action -->
+                <div class="mt-24 p-12 bg-jofa-onyx text-white rounded-sm">
+                    <h3 class="text-2xl serif mb-4 italic">Guided by {{ member.name.split.0 }}'s vision?</h3>
+                    <p class="text-gray-400 text-sm mb-8 leading-relaxed font-light">Explore the essences curated by our leading artisans and start your journey to radiance today.</p>
+                    <a href="{% url 'products:product_list' %}" class="btn-gold px-10 py-4 inline-block text-[10px] font-black uppercase tracking-widest">Shop Collection</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

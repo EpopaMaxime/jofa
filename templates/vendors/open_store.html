@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Open your store | JOFA{% endblock %}
+
+{% block content %}
+<section class="py-20 bg-jofa-beige">
+    <div class="container mx-auto px-6 md:px-12 max-w-2xl">
+        <h1 class="text-4xl serif mb-4">Open a seller store</h1>
+        <p class="text-sm mb-10">You’re logged in as {{ user.username }}. Create your storefront to start selling.</p>
+        <form method="post" class="bg-white/40 border border-gray-200 p-8 space-y-5 shadow-xl">
+            {% csrf_token %}
+            {% if form.errors %}<div class="text-red-600 text-sm">{{ form.errors }}</div>{% endif %}
+            {% for field in form %}
+            <div>
+                <label class="block text-[10px] uppercase tracking-widest font-bold mb-2">{{ field.label }}</label>
+                {{ field }}
+            </div>
+            {% endfor %}
+            <button class="btn-gold w-full py-4 uppercase text-xs tracking-widest">Launch my store</button>
+        </form>
+    </div>
+</section>
+<style>
+    form input, form textarea { width:100%; border:1px solid #d1d5db; padding:0.85rem 1rem; background:#F3EBE5; font-size:0.875rem; }
+    form input[type=checkbox] { width:auto; }
+</style>
+{% endblock %}

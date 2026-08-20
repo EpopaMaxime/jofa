@@ -1,0 +1,60 @@
+{% extends 'email/base.html' %}
+
+{% block content %}
+{% if is_admin %}
+<div style="background: #0f2d32; color: #a58b7c; padding: 10px; text-align: center; margin-bottom: 20px; font-size: 10px; text-transform: uppercase; letter-spacing: 2px;">Admin Notification: New Sale</div>
+{% endif %}
+<h2 style="color: #0f2d32; text-align: center;">{% if is_admin %}New Order Details{% else %}Order Confirmed{% endif %}</h2>
+<p>Dear {% if is_admin %}Admin{% else %}{{ order.first_name }}{% endif %},</p>
+<p>{% if is_admin %}A new order has been successfully placed on the JOFA Essence platform. Below are the details for fulfillment.{% else %}Thank you for choosing JOFA Essence. Your journey to natural radiance has begun. We've received your order and are preparing it with care.{% endif %}</p>
+
+<div style="background: #f9f9f9; padding: 20px; border-radius: 4px; margin: 20px 0;">
+    <h3 style="margin-top: 0; color: #0f2d32;">Order #{{ order.id }}</h3>
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="border-bottom: 1px solid #ddd;">
+                <th style="text-align: left; padding: 10px 0;">Product</th>
+                <th style="text-align: right; padding: 10px 0;">Qty</th>
+                <th style="text-align: right; padding: 10px 0;">Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order.items.all %}
+            <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding: 10px 0;">{{ item.product.name }}</td>
+                <td style="text-align: right; padding: 10px 0;">{{ item.quantity }}</td>
+                <td style="text-align: right; padding: 10px 0;">XAF {{ item.price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2" style="padding: 20px 0 10px; font-weight: bold;">Subtotal</td>
+                <td style="text-align: right; padding: 20px 0 10px;">XAF {{ order.get_total_cost }}</td>
+            </tr>
+            {% if order.discount %}
+            <tr>
+                <td colspan="2" style="padding: 5px 0; color: #a58b7c;">Discount Applied</td>
+                <td style="text-align: right; padding: 5px 0; color: #a58b7c;">- XAF {{ order.discount }}</td>
+            </tr>
+            {% endif %}
+            <tr style="font-size: 18px; color: #0f2d32;">
+                <td colspan="2" style="padding: 10px 0; font-weight: 900;">Total</td>
+                <td style="text-align: right; padding: 10px 0; font-weight: 900;">XAF {{ order.get_total_cost }}</td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<h3 style="color: #0f2d32;">Shipping Address</h3>
+<p style="margin: 0;">{{ order.first_name }} {{ order.last_name }}</p>
+<p style="margin: 0;">{{ order.address }}</p>
+<p style="margin: 0;">{{ order.city }}, {{ order.postal_code }}</p>
+<p style="margin: 0;">Phone: {{ order.phone_number }}</p>
+
+<!-- <div style="text-align: center; margin-top: 40px;">
+    <a href="{{ protocol }}://{{ domain }}{% url 'orders:order_detail' order.id %}" class="btn">View Order Status</a>
+</div> -->
+
+<p style="margin-top: 40px; font-size: 12px; color: #777;">If you have any questions, please contact our support team at <a href="mailto:support@jofaessence.com" class="gold">support@jofaessence.com</a>.</p>
+{% endblock %}

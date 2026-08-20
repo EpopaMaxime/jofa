@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete product | Seller{% endblock %}
+
+{% block content %}
+<section class="py-20 bg-jofa-beige">
+    <div class="container mx-auto px-6 max-w-lg">
+        <h1 class="text-3xl serif mb-4">Delete product?</h1>
+        <p class="mb-8 text-sm">“{{ object.name }}” will be removed from your store.</p>
+        <form method="post" class="flex gap-4">
+            {% csrf_token %}
+            <button class="btn-gold py-3 px-6 uppercase text-[10px] tracking-widest">Confirm delete</button>
+            <a href="{% url 'vendors:product_list' %}" class="border border-jofa-onyx px-6 py-3 uppercase text-[10px] tracking-widest font-black">Cancel</a>
+        </form>
+    </div>
+</section>
+{% endblock %}

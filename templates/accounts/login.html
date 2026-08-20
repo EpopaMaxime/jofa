@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Login | JOFA{% endblock %}
+
+{% block content %}
+<section class="py-32 bg-jofa-beige flex items-center justify-center min-h-[80vh]">
+    <div class="w-full max-w-md bg-jofa-beige p-12 shadow-xl rounded-sm">
+        <h1 class="text-3xl serif text-jofa-dark mb-8 text-center uppercase tracking-widest">Sign In</h1>
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            <div>
+                <label class="block text-[10px] uppercase tracking-widest font-bold mb-2">Username</label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                <p class="text-red-500 text-[10px] mt-1">{{ form.username.errors }}</p>
+                {% endif %}
+            </div>
+            <div>
+                <label class="block text-[10px] uppercase tracking-widest font-bold mb-2">Password</label>
+                {{ form.password }}
+                {% if form.password.errors %}
+                <p class="text-red-500 text-[10px] mt-1">{{ form.password.errors }}</p>
+                {% endif %}
+            </div>
+            <button type="submit"
+                class="w-full btn-gold py-3 md:py-4 uppercase text-xs tracking-widest font-bold shadow-lg mt-4">Login</button>
+        </form>
+        <div class="mt-8 text-center">
+            <p class="text-[10px] uppercase tracking-widest font-bold text-gray-400">
+                New to JOFA? <a href="{% url 'accounts:signup' %}" class="text-jofa-gold hover:underline">Create
+                    Account</a>
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Injecting Tailwind styles for django forms -->
+<style>
+    input {
+        width: 100%;
+        border: 1px solid #F1F1F1;
+        padding: 1rem;
+        font-size: 0.875rem;
+        outline: none;
+        transition: border-color 0.3s;
+    }
+
+    input:focus {
+        border-color: #A58B7C;
+        box-shadow: 0 0 0 2px rgba(165, 139, 124, 0.1);
+    }
+</style>
+{% endblock %}

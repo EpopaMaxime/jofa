@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}JOFA | Our Sacred Origin{% endblock %}
+
+{% block content %}
+<!-- Swiper Dependencies -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+<!-- Hero Section -->
+<section class="py-32 bg-jofa-beige">
+    <div class="container mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-24 items-center mb-32">
+        <div class="animate-fade-in-up">
+            <span class="text-xs uppercase tracking-[0.5em] text-jofa-gold font-black mb-6 block">Our Story</span>
+            <h1 class="text-5xl md:text-7xl serif text-jofa-onyx mb-12 leading-tight">Crafting Nature into <br><span
+                    class="italic font-light">Luminous Art</span></h1>
+            <p class="text-xl text-gray-600 leading-relaxed font-light mb-12">JOFA was born from a simple yet profound
+                realization: that the true secrets to radiance lie within the earth's most resilient botanicals. We
+                don't just make skincare; we curate products that reconnect you with your natural essence.</p>
+        </div>
+    </div>
+    <div class="aspect-video bg-cover bg-center shadow-2xl rounded-sm mx-6 md:mx-12 lg:mx-24 border-8 border-white"
+        style="background-image: url('{% static 'img/about_hero.jpg' %}');">
+    </div>
+</section>
+
+<!-- Heritage Section -->
+<section class="py-32 bg-white">
+    <div class="container mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-2 gap-32 items-center">
+        <div class="order-2 md:order-1">
+            <div class="grid grid-cols-2 gap-6 scale-110">
+                <div class="aspect-[3/4] bg-cover bg-center shadow-2xl rounded-sm transform translate-y-12"
+                    style="background-image: url('{% static 'img/about_history_1.jpg' %}');">
+                </div>
+                <div class="aspect-[3/4] bg-cover bg-center shadow-2xl rounded-sm"
+                    style="background-image: url('{% static 'img/about_history_2.jpg' %}');">
+                </div>
+            </div>
+        </div>
+        <div class="order-1 md:order-2 animate-fade-in-up [animation-delay:200ms]">
+            <h2 class="text-4xl serif text-jofa-onyx mb-10">The Genesis of Purity</h2>
+            <p class="text-gray-600 leading-relaxed mb-8">From humble beginnings in a small botanical laboratory, our
+                founder sought to bridge the gap between ancient herbal wisdom and modern dermatological precision.
+                Every JOFA product is a testimony to this successful union.</p>
+            <p class="text-gray-600 leading-relaxed">Today, we continue to push the boundaries of organic chemistry,
+                ensuring that every drop of JOFA provides unparalleled nourishment for the soul and skin.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Modernized Vision Section -->
+<section class="py-32 bg-jofa-onyx text-white">
+    <div class="container mx-auto px-6 md:px-12">
+        <div class="max-w-3xl mx-auto text-center mb-24">
+            <h2 class="text-4xl serif mb-10">Beyond the Surface</h2>
+            <p class="text-xl text-gray-400 font-light leading-relaxed">Our vision is to redefine luxury as a conscious
+                choice. We envision a world where beauty doesn't cost the earth, but rather celebrates its infinite
+                generosity. JOFA is your partner in natural skincare, proving that science and nature together can
+                create the most beautiful results for any skin tone and type.</p>
+            <div class="w-full h-80 bg-cover bg-center shadow-xl mt-12"
+                style="background-image: url('{% static 'img/about_vision.jpg' %}');">
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- Core Values Section -->
+<section class="py-32 bg-white" data-aos="fade-up">
+    <div class="container mx-auto px-6 md:px-12 text-center mb-24">
+        <h2 class="text-[10px] uppercase tracking-[0.5em] font-black text-jofa-gold mb-4" data-aos="fade-up" data-aos-delay="100">Our Essence</h2>
+        <h3 class="text-5xl serif text-jofa-onyx font-black" data-aos="fade-up" data-aos-delay="200">The Pillars of JOFA</h3>
+    </div>
+    <div class="container mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-3 gap-24">
+        <div class="text-center group" data-aos="fade-up" data-aos-delay="300">
+            <div class="w-20 h-20 bg-jofa-beige rounded-full flex items-center justify-center mx-auto mb-10 group-hover:bg-jofa-gold transition-all duration-500">
+                <svg class="w-10 h-10 text-jofa-gold group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 21a9.003 9.003 0 008.341-5.591M19.659 18.99A9 9 0 0112 3v18z" />
+                </svg>
+            </div>
+            <h4 class="text-2xl serif text-jofa-onyx mb-6 font-bold">Absolute Purity</h4>
+            <p class="text-gray-600 leading-relaxed font-light">We source only the highest grade botanical extracts, ensuring that every drop remains untouched by synthetic fillers or harmful toxins.</p>
+        </div>
+        <div class="text-center group">
+            <div class="w-20 h-20 bg-jofa-beige rounded-full flex items-center justify-center mx-auto mb-10 group-hover:bg-jofa-gold transition-all duration-500">
+                <svg class="w-10 h-10 text-jofa-gold group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86 1.417l-1.875 1.522a2 2 0 01-2.528 0l-1.875-1.522a6 6 0 00-3.86-1.417l-2.387.477a2 2 0 00-1.022.547l2.387 4.774a2 2 0 001.789 1.106h14.314a2 2 0 001.789-1.106l2.387-4.774zM12 13V4m0 0L9 7m3-3l3 3" />
+                </svg>
+            </div>
+            <h4 class="text-2xl serif text-jofa-onyx mb-6 font-bold">Scientific Precision</h4>
+            <p class="text-gray-600 leading-relaxed font-light">Our lab in Douala utilizes advanced molecular extraction to maximize the bioavailability of nature's most potent healing properties.</p>
+        </div>
+        <div class="text-center group">
+            <div class="w-20 h-20 bg-jofa-beige rounded-full flex items-center justify-center mx-auto mb-10 group-hover:bg-jofa-gold transition-all duration-500">
+                <svg class="w-10 h-10 text-jofa-gold group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+            </div>
+            <h4 class="text-2xl serif text-jofa-onyx mb-6 font-bold">Sacred Wellness</h4>
+            <p class="text-gray-600 leading-relaxed font-light">We believe skincare is a mindful practice. Our essences are designed to be a moment of peace in your busy day.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Sustainability Section -->
+<section class="py-32 bg-jofa-beige" data-aos="fade-up">
+    <div class="container mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
+        <div data-aos="fade-right">
+            <h2 class="text-4xl serif text-jofa-onyx mb-10">Kind to Earth, Kind to You</h2>
+            <p class="text-xl text-gray-600 leading-relaxed font-light mb-12">At JOFA, sustainability is not a trend; it's our foundation. We use 100% recyclable glass packaging and partner with local Cameroonian cooperatives to source wild-harvested ingredients, ensuring a fair wage and minimal environmental footprint.</p>
+            <div class="space-y-8">
+                <div class="flex items-start space-x-6">
+                    <div class="w-2 h-2 bg-jofa-gold rounded-full mt-3"></div>
+                    <div>
+                        <h5 class="text-lg font-bold text-jofa-onyx mb-2 uppercase tracking-widest text-xs">Zero-Waste Goal</h5>
+                        <p class="text-gray-500 font-light">We are committed to eliminating single-use plastics from our entire supply chain by 2027.</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-6">
+                    <div class="w-2 h-2 bg-jofa-gold rounded-full mt-3"></div>
+                    <div>
+                        <h5 class="text-lg font-bold text-jofa-onyx mb-2 uppercase tracking-widest text-xs">Ethical Sourcing</h5>
+                        <p class="text-gray-500 font-light">We personally visit every harvest site to verify ethical labor practices and environmental stewardship.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="relative">
+            <div class="aspect-square bg-cover bg-center rounded-sm shadow-3xl grayscale hover:grayscale-0 transition-all duration-1000"
+                style="background-image: url('https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=1000&auto=format&fit=crop');">
+            </div>
+            <div class="absolute -bottom-10 -right-10 w-48 h-48 bg-jofa-gold p-8 flex items-center justify-center text-center shadow-2xl rounded-sm">
+                <span class="text-white text-xs font-black uppercase tracking-[0.3em]">100% <br>Carbon <br>Neutral <br>Shipping</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Atelier Experience -->
+{% comment %} <section class="py-32 bg-white overflow-hidden">
+    <div class="container mx-auto px-6 md:px-12">
+        <div class="max-w-4xl mx-auto text-center mb-32">
+            <span class="text-xs uppercase tracking-[0.5em] text-jofa-gold font-black mb-6 block">Personalized Care</span>
+            <h2 class="text-5xl serif text-jofa-onyx mb-10 leading-tight">The Atelier Experience</h2>
+            <p class="text-xl text-gray-600 font-light leading-relaxed mb-12">Visit our flagship sanctuary in Douala for a personalized essence consultation. Our skin artisans will analyze your unique needs and curate a bespoke ritual tailored specifically to your natural radiance.</p>
+            <a href="{% url 'core:contact' %}" class="btn-gold px-12 py-4 inline-block text-[11px] font-black uppercase tracking-widest shadow-xl">Book a Consultation</a>
+        </div>
+    </div>
+</section> {% endcomment %}
+{% endblock %}

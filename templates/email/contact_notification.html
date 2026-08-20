@@ -1,0 +1,37 @@
+{% extends 'email/base.html' %}
+
+{% block content %}
+{% if is_admin %}
+<div style="background: #0f2d32; color: #a58b7c; padding: 10px; text-align: center; margin-bottom: 20px; font-size: 10px; text-transform: uppercase; letter-spacing: 2px;">Admin Notification: New Inquiry</div>
+<h2 style="color: #0f2d32; text-align: center;">New Contact Inquiry</h2>
+<p>Hello Admin,</p>
+<p>A new message has been received from the JOFA Essence contact form. Details are provided below for your review.</p>
+{% else %}
+<h2 style="color: #0f2d32; text-align: center;">Message Received</h2>
+<p>Dear {{ message.name }},</p>
+<p>Thank you for reaching out to JOFA Essence. We have received your inquiry regarding "<strong>{{ message.subject }}</strong>" and our team will get back to you as soon as possible.</p>
+{% endif %}
+
+<div style="background: #f9f9f9; padding: 20px; border-radius: 4px; margin: 20px 0; border-left: 4px solid #a58b7c;">
+    <p><strong>From:</strong> {{ message.name }} ({{ message.email }})</p>
+    {% if message.phone %}
+    <p><strong>Phone:</strong> {{ message.phone }}</p>
+    {% endif %}
+    <p><strong>Subject:</strong> {{ message.subject }}</p>
+    <div class="divider"></div>
+    <p><strong>Message Copy:</strong></p>
+    <p style="white-space: pre-wrap; font-style: italic;">{{ message.message }}</p>
+</div>
+
+<p style="font-size: 12px; color: #777;">This inquiry was recorded on {{ message.created_at|date:"F d, Y @ H:i" }}</p>
+
+{% if is_admin %}
+<!-- <div style="text-align: center; margin-top: 40px;">
+    <a href="mailto:{{ message.email }}" class="btn">Reply to Customer</a>
+</div> -->
+{% else %}
+<!-- <div style="text-align: center; margin-top: 40px;">
+    <a href="{{ protocol }}://{{ domain }}" class="btn">Return to Store</a>
+</div> -->
+{% endif %}
+{% endblock %}

@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order Receipt #{{ order.id }} | JOFA{% endblock %}
+
+{% block extra_css %}
+<style>
+    @media print {
+        @page {
+            margin: 0.5cm;
+        }
+
+        nav,
+        footer,
+        .no-print {
+            display: none !important;
+        }
+
+        body {
+            background-color: white !important;
+            padding-top: 0 !important;
+            font-size: 11pt;
+        }
+
+        .container {
+            max-width: 100% !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Compact spacing for print */
+        .p-12 {
+            padding: 1.5rem !important;
+        }
+
+        .mb-16 {
+            margin-bottom: 0.75rem !important;
+        }
+
+        .mb-24 {
+            margin-bottom: 1rem !important;
+        }
+
+        .pb-12 {
+            padding-bottom: 0.5rem !important;
+        }
+
+        .pt-16 {
+            padding-top: 0.75rem !important;
+        }
+
+        .mb-12 {
+            margin-bottom: 0.5rem !important;
+        }
+
+        .h-16 {
+            height: 3rem !important;
+        }
+
+        .shadow-sm,
+        .border {
+            border: none !important;
+            box-shadow: none !important;
+        }
+    }
+
+    .cancelled-watermark {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-45deg);
+        font-size: 8rem;
+        font-weight: 900;
+        color: rgba(239, 68, 68, 0.1);
+        pointer-events: none;
+        z-index: 0;
+        white-space: nowrap;
+        text-transform: uppercase;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="py-20 bg-jofa-beige min-h-screen relative overflow-hidden">
+    {% if order.status == 'cancelled' %}
+    <div class="cancelled-watermark no-print">Cancelled</div>
+    {% endif %}
+
+    <div class="container mx-auto px-6 max-w-4xl relative z-10">
+        <!-- Receipt Header -->
+        <div class="bg-jofa-beige p-12 shadow-sm border border-gray-100 rounded-sm">
+            <div class="flex justify-between items-start mb-16">
+                <div>
+                    <img src="{% static 'images/logo.jpg' %}" alt="JOFA Logo" class="h-16 w-auto mb-6">
+                    <p class="text-[10px] uppercase tracking-widest font-black text-gray-400">Botanical Purity &
+                        Clinical Excellence. Step Into Your Natural Glow.</p>
+                </div>
+                <div class="text-right">
+                    <h1 class="text-3xl serif text-jofa-onyx mb-2">Order Receipt</h1>
+                    <p class="text-sm font-bold text-jofa-gold">#{{ order.id }}</p>
+                    <p class="text-[10px] uppercase tracking-widest text-gray-400 mt-2">{{ order.created|date:"F d, Y" }} at {{ order.created|time:"H:i" }}</p>
+                </div>
+            </div>
+
+            {% if order.status == 'cancelled' %}
+            <div class="bg-red-50 text-red-600 p-6 mb-12 text-center rounded-sm border border-red-100">
+                <p class="text-xs uppercase tracking-widest font-black">This order has been cancelled</p>
+            </div>
+            {% endif %}
+
+            <!-- Customer & Order Details -->
+            <div class="grid grid-cols-2 gap-12 mb-16 border-b border-gray-50 pb-12">
+                <div>
+                    <h4 class="text-[10px] uppercase tracking-widest font-black text-gray-400 mb-4">Delivered To</h4>
+                    <p class="text-sm font-bold text-jofa-onyx leading-loose">
+                        {{ order.first_name }} {{ order.last_name }}<br>
+                        {{ order.address }}<br>
+                        {{ order.city }}, {{ order.postal_code }}<br>
+                        {{ order.email }}<br>
+                        {{ order.phone_number }}
+                    </p>
+                </div>
+                <div class="text-right">
+                    <h4 class="text-[10px] uppercase tracking-widest font-black text-gray-400 mb-4">Order Status</h4>
+                    <span class="text-[10px] uppercase tracking-widest font-black bg-jofa-beige px-4 py-2 inline-block">
+                        {{ order.get_status_display }}
+                    </span>
+                    <p class="mt-4 text-[10px] uppercase tracking-widest font-black text-gray-400">Payment: {% if order.paid %}Confirmed{% else %}{% with pay=order.payments.first %}{% if pay.provider_slug == 'cod' %}Cash on delivery{% else %}Pending{% endif %}{% endwith %}{% endif %}</p>
+                    {% if not order.paid %}
+                    {% with pay=order.payments.first %}
+                    {% if pay.provider_slug == 'cod' %}
+                    <p class="mt-2 text-[10px] text-jofa-gold font-bold uppercase tracking-widest">Pay courier on delivery</p>
+                    {% else %}
+                    <a href="{% url 'integrations:payment_checkout' order.id %}" class="no-print inline-block mt-4 btn-gold py-3 px-6 uppercase text-[10px] tracking-widest">Pay now</a>
+                    {% endif %}
+                    {% endwith %}
+                    {% endif %}
+                    {% with shipment=order.shipments.first %}
+                    {% if shipment %}
+                    <p class="mt-4 text-[10px] uppercase tracking-widest font-black text-gray-400">Shipment: {{ shipment.get_status_display }}</p>
+                    {% if shipment.tracking_number %}
+                    <p class="text-[10px] tracking-widest font-bold">Tracking {{ shipment.tracking_number }}</p>
+                    {% endif %}
+                    {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+
+            <!-- Items Table -->
+            <div class="mb-16">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b border-gray-100">
+                            <th class="pb-4 text-[10px] uppercase tracking-widest font-black text-gray-400">Essence</th>
+                            <th class="pb-4 text-[10px] uppercase tracking-widest font-black text-gray-400 text-center">
+                                Qty</th>
+                            <th class="pb-4 text-[10px] uppercase tracking-widest font-black text-gray-400 text-right">
+                                Unit Price</th>
+                            <th class="pb-4 text-[10px] uppercase tracking-widest font-black text-gray-400 text-right">
+                                Total</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50">
+                        {% for item in order.items.all %}
+                        <tr>
+                            <td class="py-6">
+                                <p class="text-sm font-bold text-jofa-onyx">{{ item.product.name }}</p>
+                                <p class="text-[9px] text-gray-400 uppercase tracking-widest mt-1">
+                                    {{item.product.category.name }}</p>
+                            </td>
+                            <td class="py-6 text-center text-sm font-medium text-jofa-onyx">{{ item.quantity }}</td>
+                            <td class="py-6 text-right text-sm font-medium text-jofa-onyx">XAF {{ item.price }}</td>
+                            <td class="py-6 text-right text-sm font-black text-jofa-onyx">XAF {{ item.get_cost }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Totals -->
+            <div class="flex flex-col items-end space-y-3 mb-24">
+                <div class="flex justify-between w-64 text-sm">
+                    <span class="text-gray-400 uppercase tracking-widest text-[10px] font-black">Subtotal</span>
+                    <span class="font-bold">XAF {{ order.get_total_cost }}</span>
+                </div>
+                <div class="flex justify-between w-64 text-sm">
+                    <span class="text-gray-400 uppercase tracking-widest text-[10px] font-black">Shipping</span>
+                    <span class="font-bold">XAF 0.00</span>
+                </div>
+                <div class="flex justify-between w-64 pt-4 border-t border-jofa-onyx">
+                    <span class="text-jofa-onyx uppercase tracking-widest text-[11px] font-black">Total Selection</span>
+                    <span class="text-2xl font-black text-jofa-onyx">XAF {{ order.get_total_cost }}</span>
+                </div>
+            </div>
+
+            <!-- Signature Section -->
+            <div class="border-t border-gray-50 pt-16 flex flex-col md:flex-row justify-between items-end">
+                <div class="text-left mb-8 md:mb-0">
+                    <p class="text-[10px] text-gray-400 italic mb-4">"May this essence bring you absolute peace and
+                        radiance."</p>
+                    <button onclick="window.print()"
+                        class="no-print btn-gold px-6 md:px-8 py-3 text-[10px] uppercase tracking-widest font-black inline-flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2m-2 4h-8v-4h8v4z" />
+                        </svg>
+                        Print Receipt
+                    </button>
+                </div>
+
+                <div class="text-right min-w-[200px]">
+                    {% if order.status == 'completed' %}
+                    <div class="mb-2">
+                        <p class="serif text-xl text-jofa-onyx italic mb-[-5px] opacity-80">JOFA Signature Essences</p>
+                        <div class="h-[1px] bg-jofa-onyx w-full"></div>
+                    </div>
+                    <p class="text-[10px] uppercase tracking-widest font-black text-gray-400">Authorized Signature</p>
+                    {% else %}
+                    <div class="h-10"></div>
+                    <div class="h-[1px] bg-gray-100 w-full mb-2"></div>
+                    <p class="text-[10px] uppercase tracking-widest font-black text-gray-200">Pending Authorization</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8 text-center text-[9px] text-gray-400 uppercase tracking-[0.3em] no-print">
+            &copy; 2026 JOFA Skincare. All Essences Reserved.
+        </div>
+    </div>
+</section>
+{% endblock %}

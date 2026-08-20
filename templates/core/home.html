@@ -1,0 +1,434 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}JOFA | Natural Radiance{% endblock %}
+
+{% block content %}
+<!-- Hero Section with Swiper Slider -->
+<section class="h-screen relative overflow-hidden">
+    <!-- Centralized Tagline Overlay -->
+    <div class="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+        <div class="text-center px-6">
+            <h1
+                class="text-white text-2xl md:text-5xl lg:text-6xl font-black uppercase tracking-[0.6em] md:tracking-[1em] leading-tight animate-fade-in-up transition-all duration-1000">
+                Step Into Your Natural Glow
+            </h1>
+        </div>
+    </div>
+
+    <div class="swiper mainHeroSwiper h-full w-full">
+        <div class="swiper-wrapper">
+            <!-- Slide 1 -->
+            <div class="swiper-slide relative">
+                <div class="absolute inset-0 z-0">
+                    <img src="{{ MEDIA_URL }}hero/hero_1.jpg" class="w-full h-full object-cover"
+                        alt="Hero Background 1">
+                    <div class="absolute inset-0 bg-black bg-opacity-40"></div>
+                </div>
+            </div>
+            <!-- Slide 2 -->
+            <div class="swiper-slide relative">
+                <div class="absolute inset-0 z-0">
+                    <img src="{{ MEDIA_URL }}hero/hero_2.jpg" class="w-full h-full object-cover"
+                        alt="Hero Background 2">
+                    <div class="absolute inset-0 bg-black bg-opacity-40"></div>
+                </div>
+            </div>
+            <!-- Slide 3 -->
+            <div class="swiper-slide relative">
+                <div class="absolute inset-0 z-0">
+                    <img src="{{ MEDIA_URL }}hero/hero_3.jpg" class="w-full h-full object-cover"
+                        alt="Hero Background 3">
+                    <div class="absolute inset-0 bg-black bg-opacity-40"></div>
+                </div>
+            </div>
+            <!-- Slide 4 -->
+            <div class="swiper-slide relative">
+                <div class="absolute inset-0 z-0">
+                    <img src="{{ MEDIA_URL }}hero/hero_4.jpg" class="w-full h-full object-cover"
+                        alt="Hero Background 4">
+                    <div class="absolute inset-0 bg-black bg-opacity-40"></div>
+                </div>
+            </div>
+        </div>
+        <!-- Pagination -->
+        <div class="swiper-pagination"></div>
+    </div>
+
+    <!-- Swiper Styles/Scripts -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <style>
+        .swiper-pagination-bullet {
+            background: white;
+            opacity: 0.5;
+        }
+
+        .swiper-pagination-bullet-active {
+            background: #D4AF37;
+            opacity: 1;
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 1s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var swiper = new Swiper(".mainHeroSwiper", {
+                loop: true,
+                autoplay: { delay: 5000, disableOnInteraction: false },
+                pagination: { el: ".swiper-pagination", clickable: true },
+                effect: 'fade',
+                fadeEffect: { crossFade: true }
+            });
+        });
+    </script>
+</section>
+
+<!-- Latest Products Slider -->
+<section class="py-32 bg-white overflow-hidden" data-aos="fade-up">
+    <div class="container mx-auto px-6 md:px-12 flex flex-col md:flex-row justify-between items-end mb-24">
+        <div class="max-w-2xl text-left" data-aos="fade-right">
+            <h2 class="text-[10px] uppercase tracking-[0.5em] font-black text-jofa-gold mb-4">Latest Additions</h2>
+            <h3 class="text-5xl serif text-jofa-dark font-black">The New Essences</h3>
+        </div>
+        <div class="flex items-center space-x-8 mt-8 md:mt-0" data-aos="fade-left">
+            <a href="{% url 'products:product_list' %}" class="text-[10px] font-black uppercase tracking-widest text-jofa-gold border-b-2 border-jofa-gold pb-1 hover:text-jofa-dark hover:border-jofa-dark transition-all">View All</a>
+            <div class="flex space-x-4">
+                <div class="latest-prev cursor-pointer hover:text-jofa-gold transition-colors">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                </div>
+                <div class="latest-next cursor-pointer hover:text-jofa-gold transition-colors">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-6 md:px-12">
+        <div class="swiper latestProductSwiper pb-12">
+            <div class="swiper-wrapper">
+                {% for product in latest_arrivals %}
+                <div class="swiper-slide h-auto">
+                    <div class="group h-full">
+                        <div class="aspect-[3/4] bg-jofa-beige mb-6 overflow-hidden relative shadow-sm group-hover:shadow-xl transition-all duration-700">
+                            {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000">
+                            {% else %}
+                            <img src="https://images.unsplash.com/photo-1612817288484-6f916006741a?q=80&w=800&auto=format&fit=crop"
+                                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 opacity-80"
+                                alt="Placeholder">
+                            {% endif %}
+                            
+                            <!-- New Badge -->
+                            <div class="absolute top-4 left-4 z-10">
+                                <span class="bg-black text-white px-3 py-1 text-[8px] font-black uppercase tracking-widest">New</span>
+                            </div>
+
+                            <a href="{{ product.get_absolute_url }}"
+                                class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-500">
+                            </a>
+                        </div>
+                        <div class="text-left">
+                            <p class="text-[9px] uppercase tracking-widest font-black text-gray-400 mb-1">{{ product.category.name }}</p>
+                            <h4 class="text-lg serif text-jofa-dark mb-2 font-bold group-hover:text-jofa-gold transition-colors">{{ product.name }}</h4>
+                            <div class="text-jofa-gold text-xs font-black">
+                                {% if product.has_discount %}
+                                <span class="line-through text-gray-400 mr-2 text-[10px]">XAF {{ product.price }}</span>
+                                XAF {{ product.get_discounted_price|floatformat:2 }}
+                                {% else %}
+                                XAF {{ product.price }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <!-- Pagination -->
+            <div class="swiper-pagination latest-pagination !static mt-8"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            new Swiper(".latestProductSwiper", {
+                slidesPerView: 1,
+                spaceBetween: 20,
+                loop: true,
+                autoplay: { delay: 4000, disableOnInteraction: false },
+                pagination: { el: ".latest-pagination", clickable: true },
+                navigation: {
+                    nextEl: ".latest-next",
+                    prevEl: ".latest-prev",
+                },
+                breakpoints: {
+                    640: { slidesPerView: 2, spaceBetween: 30 },
+                    1024: { slidesPerView: 3, spaceBetween: 40 },
+                    1280: { slidesPerView: 4, spaceBetween: 50 }
+                }
+            });
+        });
+    </script>
+</section>
+
+<!-- The JOFA Ritual -->
+<section class="py-32 bg-jofa-beige relative overflow-hidden" data-aos="fade-up">
+    <div class="container mx-auto px-6 md:px-12 text-center mb-24">
+        <h2 class="text-[10px] uppercase tracking-[0.5em] font-black text-jofa-gold mb-4">The Experience</h2>
+        <h3 class="text-5xl serif text-jofa-dark font-black">Your Sacred Essence</h3>
+    </div>
+
+    <div class="container mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-3 gap-16">
+        <!-- Step 1 -->
+        <div class="text-center group" data-aos="fade-up" data-aos-delay="100">
+            <div class="relative inline-block mb-10">
+                <div class="w-24 h-24 rounded-full border border-jofa-gold flex items-center justify-center text-3xl serif text-jofa-gold transition-all duration-500 group-hover:bg-jofa-gold group-hover:text-white">I</div>
+                <div class="absolute -bottom-2 -right-2 bg-white px-3 py-1 text-[8px] font-black uppercase tracking-widest border border-gray-100">Cleanse</div>
+            </div>
+            <h4 class="text-2xl serif text-jofa-dark mb-4">Purify the Canvas</h4>
+            <p class="text-sm text-gray-500 leading-relaxed font-medium">Remove impurities while maintaining your skin's natural pH with our botanical cleansing balms.</p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="text-center group" data-aos="fade-up" data-aos-delay="200">
+            <div class="relative inline-block mb-10">
+                <div class="w-24 h-24 rounded-full border border-jofa-gold flex items-center justify-center text-3xl serif text-jofa-gold transition-all duration-500 group-hover:bg-jofa-gold group-hover:text-white">II</div>
+                <div class="absolute -bottom-2 -right-2 bg-white px-3 py-1 text-[8px] font-black uppercase tracking-widest border border-gray-100">Nourish</div>
+            </div>
+            <h4 class="text-2xl serif text-jofa-dark mb-4">Infuse with Essence</h4>
+            <p class="text-sm text-gray-500 leading-relaxed font-medium">Apply our highly concentrated serums to deliver targeted nutrients deep into the dermal layers.</p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="text-center group" data-aos="fade-up" data-aos-delay="300">
+            <div class="relative inline-block mb-10">
+                <div class="w-24 h-24 rounded-full border border-jofa-gold flex items-center justify-center text-3xl serif text-jofa-gold transition-all duration-500 group-hover:bg-jofa-gold group-hover:text-white">III</div>
+                <div class="absolute -bottom-2 -right-2 bg-white px-3 py-1 text-[8px] font-black uppercase tracking-widest border border-gray-100">Seal</div>
+            </div>
+            <h4 class="text-2xl serif text-jofa-dark mb-4">Lock in the Glow</h4>
+            <p class="text-sm text-gray-500 leading-relaxed font-medium">Finish with our radiance-boosting oils to seal in moisture and protect your natural barrier.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Community Testimonials Slider (Refined 3-Item View) -->
+<section class="py-32 bg-jofa-beige border-y border-gray-100 overflow-hidden" data-aos="fade-up">
+    <div class="container mx-auto px-6 md:px-12 text-center mb-16">
+        <span class="text-xs uppercase tracking-[0.5em] font-black text-jofa-gold mb-6 block" data-aos="fade-up">Community
+            Whispers</span>
+        <h2 class="text-5xl serif text-jofa-onyx font-black leading-tight" data-aos="fade-up" data-aos-delay="100">Shared Testimonies</h2>
+    </div>
+
+    <div class="container mx-auto px-6 md:px-12">
+        <div class="swiper testimonialSwiper">
+            <div class="swiper-wrapper">
+                {% for review in reviews %}
+                <div class="swiper-slide h-auto">
+                    <div
+                        class="bg-jofa-beige p-10 shadow-sm border border-gray-50 flex flex-col h-full hover:shadow-2xl transition-all duration-500 group">
+                        <div class="flex text-jofa-gold mb-8 group-hover:scale-110 transition-transform origin-left">
+                            {% for i in "12345"|make_list %}{% if forloop.counter <= review.rating %} ★ {% else %} ☆ {% endif %}{% endfor %} </div>
+                                <p class="text-lg text-gray-700 italic font-medium leading-loose mb-12 flex-grow">"{{ review.comment }}"</p>
+                                <div class="flex items-center space-x-4 border-t border-gray-50 pt-8 mt-auto">
+                                    <div class="w-12 h-12 bg-white rounded-full overflow-hidden flex items-center justify-center border border-jofa-gold/10">
+                                        {% if review.user.profile.image %}
+                                        <img src="{{ review.user.profile.image.url }}" alt="{{ review.user.username }}" class="w-full h-full object-cover">
+                                        {% else %}
+                                        <span class="font-black text-jofa-gold text-[10px]">{{ review.user.first_name|default:review.user.username|slice:":1"|upper }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <h5 class="text-xs font-black uppercase tracking-[0.3em] text-jofa-onyx">{{ review.user.first_name|default:review.user.username }}</h5>
+                                        <p class="text-[9px] uppercase tracking-widest text-jofa-gold font-bold mt-1">
+                                            Verified Reviewer</p>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="swiper-slide w-full">
+                        <div class="text-center py-24 bg-jofa-beige border border-dashed border-gray-200">
+                            <p class="text-gray-400 italic text-xl">The testimonies continues. Join our community to share your journey.</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <!-- Pagination -->
+            <div class="swiper-pagination testimonial-pagination mt-12 !static"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var testimonialSwiper = new Swiper(".testimonialSwiper", {
+                slidesPerView: 1,
+                spaceBetween: 30,
+                loop: true,
+                autoplay: { delay: 5000, disableOnInteraction: false },
+                pagination: { el: ".testimonial-pagination", clickable: true },
+                breakpoints: {
+                    768: { slidesPerView: 2 },
+                    1024: { slidesPerView: 3 }
+                }
+            });
+        });
+    </script>
+</section>
+
+<!-- Brand Story Section -->
+<section class="py-32 bg-jofa-onyx text-white relative overflow-hidden">
+    <div
+        class="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/dark-matter.png')]">
+    </div>
+    <div class="container mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-2 gap-24 items-center relative z-10">
+        <div class="animate-fade-in-up">
+            <span class="text-xs uppercase tracking-[0.4em] text-jofa-gold font-black mb-6 block">Our Sacred
+                Philosophy</span>
+            <h2 class="text-4xl serif text-jofa-beige mb-10 leading-tight">Rooted in Purity, <br>Refined by <span
+                    class="text-white">Modern Science</span></h2>
+            <p class="text-xl text-gray-300 mb-12 leading-relaxed font-light font-sans">We believe skincare is a sacred
+                essence. Our formulations combine the purest botanical extracts with modern dermatological science to
+                bring you results that you can see and feel, without compromise.</p>
+            <ul class="space-y-6 mb-16">
+                <li class="flex items-center space-x-4 group">
+                    <div
+                        class="w-10 h-10 rounded-full border border-jofa-gold/30 flex items-center justify-center group-hover:bg-jofa-gold transition-all duration-500">
+                        <svg class="h-5 w-5 text-jofa-gold group-hover:text-jofa-onyx" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <span class="text-sm font-bold uppercase tracking-widest text-jofa-beige">Sustainably Sourced
+                        Ingredients</span>
+                </li>
+                <li class="flex items-center space-x-4 group">
+                    <div
+                        class="w-10 h-10 rounded-full border border-jofa-gold/30 flex items-center justify-center group-hover:bg-jofa-gold transition-all duration-500">
+                        <svg class="h-5 w-5 text-jofa-gold group-hover:text-jofa-onyx" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <span class="text-sm font-bold uppercase tracking-widest text-jofa-beige">Scientifically Validated
+                        Products</span>
+                </li>
+            </ul>
+            <a href="{% url 'core:about' %}"
+                class="btn-gold px-6 md:px-8 md:px-12 py-3 md:py-4 md:py-6 inline-block text-[11px] uppercase tracking-[0.3em] font-black shadow-2xl hover:bg-jofa-beige hover:text-jofa-onyx transition-all duration-500">Discover
+                Our Universe</a>
+        </div>
+        <div class="relative group animate-fade-in-up [animation-delay:300ms]">
+            <div class="aspect-[4/5] bg-cover bg-center rounded-sm shadow-2xl transition-transform duration-700 group-hover:scale-[1.02] border border-white/10"
+                style="background-image: url('{% static 'img/philosophy_hero.jpg' %}');">
+            </div>
+            <div
+                class="absolute -bottom-12 -left-12 w-64 h-64 bg-jofa-beige p-12 rounded-sm hidden md:flex flex-col justify-end shadow-3xl border border-white/20 transform group-hover:-translate-y-2 transition-transform duration-500">
+                <span class="text-6xl font-bold serif text-jofa-onyx mb-3">100%</span>
+                <span class="text-[10px] uppercase tracking-widest font-black text-jofa-onyx leading-loose">Organic
+                    Botanical<br>Base Formula</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQs Quick View -->
+<section class="py-24 bg-jofa-beige">
+    <div class="container mx-auto px-6 md:px-12 max-w-4xl">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl serif text-jofa-dark mb-4">Common Questions & Inquiries</h2>
+            <p class="text-gray-500 font-light">Your most frequent questions, expertly answered.</p>
+        </div>
+        <div class="space-y-4">
+            {% for faq in faqs %}
+            <div class="border border-gray-100 p-8 rounded-sm hover:border-jofa-gold transition-all cursor-pointer group"
+                onclick="this.querySelector('.faq-answer').classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+                <div class="flex justify-between items-center">
+                    <h3 class="serif text-xl text-jofa-dark group-hover:text-jofa-gold transition-colors">{{ faq.question }}</h3>
+                    <svg class="h-5 w-5 text-jofa-gold transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+                <div class="faq-answer hidden mt-6 text-sm text-gray-600 leading-relaxed font-normal pt-6 border-t border-gray-50 animate-fade-in">
+                    {{ faq.answer }}
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-center text-gray-400 italic">Expert wisdom is being curated. Check back soon.</p>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-12">
+            <a href="{% url 'core:faq' %}"
+                class="text-[10px] font-black uppercase tracking-widest text-jofa-gold border-b-2 border-jofa-gold pb-1 hover:text-jofa-dark hover:border-jofa-dark transition-all">View
+                All FAQs</a>
+        </div>
+    </div>
+</section>
+
+<!-- Blog Preview -->
+<section class="py-24 bg-jofa-beige" data-aos="fade-up">
+    <div class="container mx-auto px-6 md:px-12">
+        <h2 class="text-4xl serif text-jofa-dark mb-16 text-center" data-aos="fade-up">Latest Blogs</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+            {% for post in latest_posts %}
+            <div class="group cursor-pointer" data-aos="fade-up" data-aos-delay="{{ forloop.counter }}00">
+                <div class="overflow-hidden mb-6 aspect-video bg-jofa-beige shadow-lg">
+                    {% if post.image %}
+                    <img src="{{ post.image.url }}" alt="{{ post.title }}"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                    {% else %}
+                    <img src="{% static 'img/journal_placeholder.jpg' %}"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-80"
+                        alt="Blog Post Placeholder">
+                    {% endif %}
+                </div>
+                <span class="text-[10px] uppercase tracking-widest text-jofa-gold font-black mb-4 block">{{ post.created_at | date:"F d, Y" }}</span>
+                <h3 class="text-xl serif group-hover:text-jofa-gold transition-colors mb-4 font-black tracking-tight">{{ post.title }}</h3>
+                <p class="text-gray-500 text-sm leading-relaxed mb-6 font-medium">{{ post.excerpt | truncatewords:20 }}
+                </p>
+                <a href="{{ post.get_absolute_url }}"
+                    class="text-xs uppercase tracking-widest font-black border-b-2 border-jofa-dark pb-1 group-hover:border-jofa-gold group-hover:text-jofa-gold transition-all">Read
+                    Blog</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="py-24 bg-white">
+    <div class="container mx-auto px-6 md:px-12">
+        <div class="bg-jofa-onyx p-12 md:p-24 relative overflow-hidden text-center" data-aos="zoom-in">
+            <!-- Decorative Elements -->
+            <div class="absolute top-0 right-0 w-64 h-64 bg-jofa-gold opacity-10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+            <div class="absolute bottom-0 left-0 w-48 h-48 border border-jofa-gold opacity-20 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+            
+            <div class="relative z-10 max-w-2xl mx-auto">
+                <span class="text-xs uppercase tracking-[0.5em] text-jofa-gold font-black mb-6 block">The Inner Circle</span>
+                <h2 class="text-4xl md:text-5xl serif text-white mb-8">Join the Essence Journal</h2>
+                <p class="text-gray-400 mb-12 text-lg font-light leading-relaxed">Subscribe to receive exclusive botanical wisdom, early access to new collections, and sacred community invitations.</p>
+                
+                <form class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+                    <input type="email" placeholder="Your Sanctuary Email" 
+                        class="flex-grow bg-white/10 border border-white/20 p-5 text-white text-sm focus:outline-none focus:ring-1 ring-jofa-gold transition-all">
+                    <button type="submit" class="btn-gold px-12 py-5 text-[11px] font-black uppercase tracking-widest whitespace-nowrap">Subscribe</button>
+                </form>
+                <p class="text-[9px] text-gray-500 mt-8 uppercase tracking-widest font-black">Respecting your privacy. Opt-out at any time.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

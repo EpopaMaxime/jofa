@@ -1,0 +1,551 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}JOFA | Premium Skincare{% endblock %}</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'images/logo.jpg' %}">
+    <link rel="shortcut icon" href="{% static 'images/logo.jpg' %}">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Inter:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        jofa: {
+                            beige: '#F3EBE5',
+                            offwhite: '#F3EBE5',
+                            gold: '#A58B7C',
+                            onyx: '#0F2D32',
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Outfit', 'sans-serif'],
+                        sans: ['Inter', 'sans-serif'],
+                        header: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- AOS CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F3EBE5;
+            color: #0F2D32;
+            font-weight: 400;
+        }
+
+        h1,
+        h2,
+        h3,
+        .serif {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            color: #0F2D32;
+            letter-spacing: -0.02em;
+        }
+
+        p {
+            line-height: 1.8;
+            color: #2D4F52;
+            font-weight: 400;
+        }
+
+        .btn-gold {
+            background-color: #A58B7C;
+            color: #FFFFFF;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            letter-spacing: 0.1em;
+        }
+
+        .btn-gold:hover {
+            background-color: #0F2D32;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+            font-weight: 800;
+            color: #000000;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background-color: #A58B7C;
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #A58B7C;
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+
+        .btn-gold {
+            background-color: #A58B7C;
+            color: #FFFFFF;
+            padding: 1rem 3rem;
+            display: inline-block;
+            text-align: center;
+            white-space: nowrap;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .btn-gold::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.7s;
+            z-index: -1;
+        }
+
+        .btn-gold:hover {
+            background-color: #0F2D32;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -10px rgba(165, 139, 124, 0.5);
+        }
+
+        .btn-gold:hover::before {
+            left: 100%;
+        }
+
+        .glass {
+            background: #F3EBE5;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        /* Password Toggle Styles */
+        .password-wrapper {
+            position: relative;
+            display: block;
+            width: 100%;
+        }
+
+        .password-toggle-btn {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            padding: 0.5rem;
+            cursor: pointer;
+            color: #9CA3AF;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .password-toggle-btn:hover {
+            color: #A58B7C;
+        }
+
+        /* Preloader Styles */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #F3EBE5;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.8s ease-in-out, visibility 0.8s;
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 3px solid #A58B7C20;
+            border-top: 3px solid #A58B7C;
+            border-radius: 50%;
+            animation: spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="min-h-screen flex flex-col">
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="flex flex-col items-center">
+            <div class="loader mb-6"></div>
+            <span class="text-[10px] uppercase tracking-[0.5em] font-black text-jofa-gold animate-pulse">Entering the Essence</span>
+        </div>
+    </div>
+    <!-- Navbar -->
+    <nav class="glass sticky top-0 z-50 py-6 px-6 md:px-12 flex justify-between items-center shadow-md">
+        <a href="{% url 'core:home' %}" class="block group">
+            <img src="{% static 'images/logo.jpg' %}" alt="JOFA Logo"
+                class="h-12 md:h-16 w-auto transition-transform duration-500 group-hover:scale-105">
+        </a>
+        <div class="hidden lg:flex space-x-10 items-center uppercase text-[11px] tracking-[0.2em] font-black">
+            <a href="{% url 'core:home' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">Home</a>
+            <a href="{% url 'products:product_list' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'product_list' or request.resolver_match.url_name == 'product_detail' %}active{% endif %}">Shop</a>
+            <a href="{% url 'consultation:landing' %}"
+                class="nav-link {% if request.resolver_match.app_name == 'consultation' %}active{% endif %}">AI Consult</a>
+            <a href="{% url 'vendors:landing' %}"
+                class="nav-link {% if request.resolver_match.app_name == 'vendors' %}active{% endif %}">Sell</a>
+            <a href="{% url 'blog:post_list' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'post_list' or request.resolver_match.url_name == 'post_detail' %}active{% endif %}">Blog</a>
+            <a href="{% url 'reviews:review_list' %}"
+                class="nav-link {% if request.resolver_match.app_name == 'reviews' %}active{% endif %}">Reviews</a>
+            <a href="{% url 'core:team_list' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'team_list' or request.resolver_match.url_name == 'team_detail' %}active{% endif %}">Team</a>
+            <a href="{% url 'core:news_event_list' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'news_event_list' or request.resolver_match.url_name == 'news_event_detail' %}active{% endif %}">News & Events</a>
+            <a href="{% url 'core:faq' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'faq' %}active{% endif %}">FAQ</a>
+            <a href="{% url 'core:about' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}">About</a>
+            <a href="{% url 'core:contact' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}">Contact</a>
+        </div>
+        <div class="flex items-center space-x-4 md:space-x-8">
+
+            <a href="{% url 'products:wishlist_detail' %}"
+                class="relative text-black hover:text-jofa-gold transition-colors" title="Wishlist">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                {% if request.user.is_authenticated and request.user.wishlist.products.count > 0 %}
+                <span
+                    class="absolute -top-1 -right-1 bg-jofa-gold text-white text-[9px] font-black rounded-full h-4 w-4 flex items-center justify-center">{{ request.user.wishlist.products.count }}</span>
+                {% endif %}
+            </a>
+            <a href="{% url 'orders:cart_detail' %}" class="relative text-black hover:text-jofa-gold transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                {% if cart|length > 0 %}
+                <span
+                    class="absolute -top-2 -right-2 bg-black text-white text-[9px] font-black rounded-full h-5 w-5 flex items-center justify-center border-2 border-white">{{ cart|length }}</span>
+                {% endif %}
+            </a>
+            {% if user.is_authenticated %}
+            <a href="{% url 'accounts:profile' %}" class="text-black hover:text-jofa-gold transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+            </a>
+            {% else %}
+            <a href="{% url 'accounts:login' %}"
+                class="bg-black text-white px-5 py-2 text-[9px] md:text-[10px] font-black uppercase tracking-widest hover:bg-jofa-gold transition-colors">Join</a>
+            {% endif %}
+
+            <!-- Mobile Menu Toggle -->
+            <button id="menu-toggle" class="lg:hidden text-black focus:outline-none p-2" aria-label="Toggle Menu">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu Drawer -->
+    <div id="mobile-drawer"
+        class="fixed inset-0 z-[60] bg-jofa-beige transform translate-x-full transition-transform duration-500 ease-in-out lg:hidden">
+        <div class="flex flex-col h-full p-12">
+            <div class="flex justify-between items-center mb-16">
+                <img src="{% static 'images/logo.jpg' %}" alt="JOFA Logo" class="h-12 w-auto">
+                <button id="menu-close" class="text-black p-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <nav class="flex flex-col space-y-8 text-sm font-black text-jofa-onyx uppercase tracking-[0.3em]">
+                <a href="{% url 'core:home' %}"
+                    class="{% if request.resolver_match.url_name == 'home' %}text-jofa-gold{% endif %} hover:text-jofa-gold transition-colors">Home</a>
+                <a href="{% url 'products:product_list' %}"
+                    class="{% if request.resolver_match.url_name == 'product_list' or request.resolver_match.url_name == 'product_detail' %}text-jofa-gold{% endif %} hover:text-jofa-gold transition-colors">Shop</a>
+                <a href="{% url 'consultation:landing' %}"
+                    class="{% if request.resolver_match.app_name == 'consultation' %}text-jofa-gold{% endif %} hover:text-jofa-gold transition-colors">AI Consult</a>
+                <a href="{% url 'vendors:landing' %}"
+                    class="{% if request.resolver_match.app_name == 'vendors' %}text-jofa-gold{% endif %} hover:text-jofa-gold transition-colors">Sell</a>
+                <a href="{% url 'blog:post_list' %}"
+                    class="{% if request.resolver_match.url_name == 'post_list' or request.resolver_match.url_name == 'post_detail' %}text-jofa-gold{% endif %} hover:text-jofa-gold transition-colors">Blog</a>
+                <a href="{% url 'reviews:review_list' %}"
+                    class="{% if request.resolver_match.app_name == 'reviews' %}text-jofa-gold{% endif %} hover:text-jofa-gold transition-colors">Reviews</a>
+                <a href="{% url 'core:team_list' %}"
+                    class="{% if request.resolver_match.url_name == 'team_list' or request.resolver_match.url_name == 'team_detail' %}text-jofa-gold{% endif %} hover:text-jofa-gold transition-colors">Team</a>
+                <a href="{% url 'core:news_event_list' %}"
+                    class="{% if request.resolver_match.url_name == 'news_event_list' or request.resolver_match.url_name == 'news_event_detail' %}text-jofa-gold{% endif %} hover:text-jofa-gold transition-colors">Journal</a>
+                <a href="{% url 'core:about' %}"
+                    class="{% if request.resolver_match.url_name == 'about' %}text-jofa-gold{% endif %} hover:text-jofa-gold transition-colors">About</a>
+                <a href="{% url 'core:contact' %}"
+                    class="{% if request.resolver_match.url_name == 'contact' %}text-jofa-gold{% endif %} hover:text-jofa-gold transition-colors">Contact</a>
+            </nav>
+            <div class="mt-auto pt-12 border-t border-gray-100 flex flex-col space-y-6">
+                {% if user.is_authenticated %}
+                <a href="{% url 'accounts:profile' %}"
+                    class="text-sm font-black uppercase tracking-widest text-jofa-gold">My Profile</a>
+                <form action="{% url 'accounts:logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit"
+                        class="text-sm font-black uppercase tracking-widest text-red-500">Logout</button>
+                </form>
+                {% else %}
+                <a href="{% url 'accounts:login' %}" class="btn-gold text-center py-3 md:py-5 rounded-sm">Join
+                    Jofa</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        {% if messages %}
+        <div class="fixed top-32 left-1/2 transform -translate-x-1/2 z-[100] w-full max-w-xl px-6">
+            {% for message in messages %}
+            <div class="relative p-6 mb-4 rounded-sm shadow-2xl flex items-center justify-between animate-fade-in-down border-l-4 {% if message.tags == 'success' %}bg-white border-green-500 text-gray-800{% else %}bg-white border-red-500 text-gray-800{% endif %}"
+                 id="message-{{ forloop.counter }}">
+                <div class="flex items-center">
+                    {% if message.tags == 'success' %}
+                    <svg class="w-6 h-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    {% else %}
+                    <svg class="w-6 h-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    {% endif %}
+                    <p class="text-[10px] font-black uppercase tracking-[0.2em]">{{ message }}</p>
+                </div>
+                <button onclick="this.closest('.relative').remove()" class="text-gray-400 hover:text-jofa-onyx transition-colors ml-4">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-jofa-onyx text-white py-24 px-6 md:px-12">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-16">
+            <div class="col-span-1 md:col-span-1">
+                <a href="{% url 'core:home' %}" class="block mb-8">
+                    <img src="{% static 'images/logo.jpg' %}" alt="JOFA Logo"
+                        class="h-12 w-auto opacity-90 hover:opacity-100 transition-opacity">
+                </a>
+                <p class="text-gray-400 text-sm leading-relaxed mb-8 font-medium">The intersection of botanical purity
+                    and clinical excellence. Step Into Your Natural Glow. Crafted for the absolute glow.</p>
+                <div class="flex space-x-6">
+                    <a href="https://www.facebook.com/share/1YqrQq3rCT/?mibextid=wwXIfr"
+                        class="text-gray-400 hover:text-jofa-gold transition-colors">
+                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                        </svg>
+                    </a>
+                    <a href="https://www.tiktok.com/@jofaskincare?_r=1&_t=ZS-950VQ1FEKp8"
+                        class="text-gray-400 hover:text-jofa-gold transition-colors">
+                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.17-2.86-.6-4.12-1.31a8.6 8.6 0 01-1.28-3.08l-.01 9.42c-.01 2.45-1.01 4.96-2.91 6.51A7.63 7.63 0 011.89 19.3c-1.34-3.14-.14-7.23 3.04-9.02 1.05-.59 2.27-.88 3.48-.84v4.05c-.88-.13-1.84.09-2.58.64a3.86 3.86 0 00-1.4 3.79c.14 1.17.85 2.25 1.89 2.79 1.48.77 3.4.63 4.63-.52.79-.74 1.14-1.83 1.14-2.88l.01-17.29z" />
+                        </svg>
+                    </a>
+                    <a href="https://www.instagram.com/jofa2_46?igsh=MWxqdHVmajZlaW8zaA=="
+                        class="text-gray-400 hover:text-jofa-gold transition-colors">
+                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                        </svg>
+                    </a>
+                    <a href="https://pin.it/5fQExquH1" class="text-gray-400 hover:text-jofa-gold transition-colors">
+                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.136.892 2.738.098.12.112.224.083.345l-.289 1.199c-.046.19-.153.232-.35.141-1.305-.606-2.12-2.518-2.12-4.053 0-3.298 2.396-6.326 6.911-6.326 3.63 0 6.452 2.585 6.452 6.043 0 3.608-2.274 6.513-5.434 6.513-1.06 0-2.057-.551-2.398-1.201 0 0-.523 1.992-.65 2.476-.235.89-.87 2.004-1.296 2.684 1.002.311 2.068.479 3.176.479 6.627 0 12-5.373 12-12C24.017 5.367 18.638 0 12.017 0z" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <div>
+                <h4 class="uppercase text-xs tracking-widest font-bold mb-6 text-jofa-gold">Quick Links</h4>
+                <ul class="space-y-4 text-sm text-gray-400">
+                    <li><a href="{% url 'products:product_list' %}" class="hover:text-jofa-gold">Shop All</a></li>
+                    <li><a href="{% url 'consultation:landing' %}" class="hover:text-jofa-gold">AI Skin Consult</a></li>
+                    <li><a href="{% url 'vendors:landing' %}" class="hover:text-jofa-gold">Sell on JOFA</a></li>
+                    <li><a href="{% url 'core:about' %}" class="hover:text-jofa-gold">About JOFA</a></li>
+                    <li><a href="{% url 'blog:post_list' %}" class="hover:text-jofa-gold">Blog</a></li>
+                    <li><a href="{% url 'core:faq' %}" class="hover:text-jofa-gold">FAQs</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="uppercase text-xs tracking-widest font-bold mb-6 text-jofa-gold">Customer Care</h4>
+                <ul class="space-y-4 text-sm text-gray-400">
+                    <li><a href="{% url 'core:contact' %}" class="hover:text-jofa-gold">Contact Us</a></li>
+                    <li><a href="#" class="hover:text-jofa-gold">Shipping Policy</a></li>
+                    <li><a href="#" class="hover:text-jofa-gold">Refunds</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="uppercase text-xs tracking-widest font-bold mb-6 text-jofa-gold">Newsletter</h4>
+                <p class="text-gray-400 text-sm mb-4">Subscribe for exclusive offers and skincare tips.</p>
+                <form class="flex">
+                    <input type="email" placeholder="Your Email"
+                        class="bg-transparent border-b border-gray-600 focus:border-jofa-gold outline-none py-2 w-full text-sm">
+                    <button type="submit"
+                        class="ml-4 text-jofa-gold uppercase text-xs tracking-widest font-bold">Join</button>
+                </form>
+            </div>
+        </div>
+        <div class="mt-16 pt-8 border-t border-gray-800 text-center text-xs text-gray-500">
+            &copy; 2026 JOFA Skincare. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const menuToggle = document.getElementById('menu-toggle');
+            const menuClose = document.getElementById('menu-close');
+            const mobileDrawer = document.getElementById('mobile-drawer');
+            const drawerLinks = mobileDrawer.querySelectorAll('a');
+
+            if (menuToggle && menuClose && mobileDrawer) {
+                menuToggle.addEventListener('click', () => {
+                    mobileDrawer.classList.remove('translate-x-full');
+                });
+
+                menuClose.addEventListener('click', () => {
+                    mobileDrawer.classList.add('translate-x-full');
+                });
+
+                drawerLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        mobileDrawer.classList.add('translate-x-full');
+                    });
+                });
+            }
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+    <!-- Global Password Toggle -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const passwordInputs = document.querySelectorAll('input[type="password"]');
+
+            passwordInputs.forEach(input => {
+                // Create wrapper
+                const wrapper = document.createElement('div');
+                wrapper.className = 'password-wrapper';
+
+                // Insert wrapper before input and move input inside
+                input.parentNode.insertBefore(wrapper, input);
+                wrapper.appendChild(input);
+
+                // Create toggle button
+                const toggleBtn = document.createElement('button');
+                toggleBtn.type = 'button';
+                toggleBtn.className = 'password-toggle-btn';
+                toggleBtn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 eye-show" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 eye-hide hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.046m4.51-4.51A9.959 9.959 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21m-2.101-2.101L3 3m1.414 1.414l12.688 12.688M12 12l.01.01" />
+                    </svg>
+                `;
+
+                wrapper.appendChild(toggleBtn);
+
+                const eyeShow = toggleBtn.querySelector('.eye-show');
+                const eyeHide = toggleBtn.querySelector('.eye-hide');
+
+                toggleBtn.addEventListener('click', function () {
+                    const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                    input.setAttribute('type', type);
+
+                    // Toggle icons
+                    eyeShow.classList.toggle('hidden');
+                    eyeHide.classList.toggle('hidden');
+                });
+            });
+        });
+    </script>
+    <!-- AOS JS -->
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+        // Hide preloader when everything is loaded
+        window.addEventListener('load', function() {
+            const preloader = document.getElementById('preloader');
+            preloader.style.opacity = '0';
+            setTimeout(() => {
+                preloader.style.visibility = 'hidden';
+            }, 800);
+        });
+
+        // Initialize AOS
+        document.addEventListener('DOMContentLoaded', function() {
+            AOS.init({
+                duration: 1000,
+                once: true,
+                offset: 100,
+                easing: 'ease-out-cubic'
+            });
+        });
+    </script>
+</body>
+
+</html>

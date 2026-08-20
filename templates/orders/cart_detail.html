@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+
+{% block title %}Your Essence Selection | JOFA{% endblock %}
+
+{% block content %}
+<section class="py-24 bg-jofa-beige">
+    <div class="container mx-auto px-6 md:px-12">
+        <h1 class="text-6xl serif text-jofa-dark mb-16 font-black tracking-tight">Your <span
+                class="text-jofa-gold italic">Products Selection</span></h1>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-24">
+            <div class="lg:col-span-2">
+                {% if cart %}
+                <div class="space-y-12">
+                    {% for item in cart %}
+                    {% with product=item.product %}
+                    <div
+                        class="flex flex-col md:flex-row items-center space-y-6 md:space-y-0 md:space-x-10 p-10 bg-jofa-beige border border-gray-50 shadow-sm relative group overflow-hidden">
+                        <div class="w-40 h-52 bg-jofa-beige flex-shrink-0 shadow-lg overflow-hidden">
+                            {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                                class="w-full h-full object-cover">
+                            {% else %}
+                            <img src="https://images.unsplash.com/photo-1556228720-195a672e8a03?q=80&w=400&auto=format&fit=crop"
+                                class="w-full h-full object-cover opacity-80" alt="Placeholder">
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow">
+                            <h3 class="text-3xl serif text-jofa-dark mb-2 font-black"><a
+                                    href="{{ product.get_absolute_url }}">{{ product.name }}</a></h3>
+                            <p class="text-[10px] uppercase tracking-widest font-black text-jofa-gold mb-6">{{ product.category.name }}</p>
+
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center border-[3px] border-black">
+                                    <form action="{% url 'orders:cart_add' product.id %}" method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="quantity" value="-1">
+                                        <input type="hidden" name="override" value="False">
+                                        <button type="submit"
+                                            class="px-6 py-2 font-black text-lg hover:bg-black hover:text-white transition-colors">-</button>
+                                    </form>
+                                    <span class="px-6 font-black text-lg">{{ item.quantity }}</span>
+                                    <form action="{% url 'orders:cart_add' product.id %}" method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="quantity" value="1">
+                                        <input type="hidden" name="override" value="False">
+                                        <button type="submit"
+                                            class="px-6 py-2 font-black text-lg hover:bg-black hover:text-white transition-colors">+</button>
+                                    </form>
+                                </div>
+                                <div class="text-right">
+                                    {% if item.discount_applied %}
+                                    <p class="text-sm font-black text-gray-400 line-through">XAF {{ item.original_total_price }}</p>
+                                    {% endif %}
+                                    <p class="text-2xl font-black text-black">XAF {{ item.total_price }}</p>
+                                </div>
+                                <form action="{% url 'orders:cart_remove' product.id %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-red-500 hover:text-red-700 p-2">
+                                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endwith %}
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="bg-jofa-beige p-24 text-center border-2 border-dashed border-gray-200">
+                    <p class="text-gray-400 font-black uppercase tracking-[0.2em] mb-8">Your product path is currently
+                        open.</p>
+                    <a href="{% url 'products:product_list' %}"
+                        class="btn-gold px-6 md:px-8 md:px-12 py-3 md:py-5 inline-block text-[11px] font-black uppercase tracking-[0.3em]">Curate
+                        Your List</a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Summary -->
+            {% if cart %}
+            <div class="lg:col-span-1">
+                <!-- Coupon Code Form -->
+                <form action="{% url 'orders:coupon_apply' %}" method="post" class="mb-8">
+                    {% csrf_token %}
+                    <label class="text-[11px] uppercase tracking-widest font-bold text-gray-400 block mb-3">Discount
+                        Code</label>
+                    <div class="flex">
+                        <input type="text" name="code" placeholder="Enter code..."
+                            class="flex-grow bg-gray-900 text-white text-sm px-4 py-3 outline-none border border-gray-700 focus:border-jofa-gold transition-colors">
+                        <button type="submit"
+                            class="bg-jofa-gold text-black px-5 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-jofa-beige transition-colors">
+                            Apply
+                        </button>
+                    </div>
+                    {% if cart.coupon %}
+                    <p class="text-jofa-gold text-[10px] font-black uppercase tracking-widest mt-2">
+                        ✓ Code "{{ cart.coupon.code }}" applied ({{ cart.coupon.discount }}% off)
+                    </p>
+                    {% endif %}
+                </form>
+
+                <!-- Points Redemption Form -->
+                {% if user.is_authenticated %}
+                <div class="mb-8 p-6 bg-gray-50 border border-gray-100">
+                    <h4 class="text-sm font-black uppercase tracking-widest text-jofa-dark mb-2">Jofa Rewards</h4>
+                    <p class="text-xs text-gray-500 mb-4">Available Points: <strong>{{ available_points }}</strong></p>
+                    {% if available_points > 0 %}
+                    <form action="{% url 'orders:points_apply' %}" method="post">
+                        {% csrf_token %}
+                        <div class="flex">
+                            <input type="number" name="points" placeholder="Points to redeem..."
+                                max="{{ available_points }}" min="1"
+                                class="flex-grow bg-jofa-beige text-sm px-4 py-3 outline-none border border-gray-200 focus:border-jofa-gold transition-colors"
+                                value="{{ cart.applied_points|default:'' }}">
+                            <button type="submit"
+                                class="bg-black text-white px-5 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-jofa-gold hover:text-black transition-colors">
+                                Redeem
+                            </button>
+                        </div>
+                    </form>
+                    {% if cart.applied_points %}
+                    <p class="text-jofa-gold text-[10px] font-black uppercase tracking-widest mt-2 block">
+                        ✓ {{ cart.applied_points }} points applied (XAF -{{ cart.get_points_discount }})
+                    </p>
+                    <form action="{% url 'orders:points_apply' %}" method="post" class="mt-2">
+                        {% csrf_token %}
+                        <input type="hidden" name="points" value="0">
+                        <button type="submit" class="text-xs text-red-500 hover:text-red-700 underline">Remove
+                            Points</button>
+                    </form>
+                    {% endif %}
+                    {% else %}
+                    <p class="text-[10px] text-gray-400 italic">Earn points with every purchase.</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+
+                <div class="space-y-6 mb-12">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[11px] uppercase tracking-widest font-bold text-gray-400">Total Before
+                            Points</span>
+                        <!-- We calculate total without points by adding them back conceptually if needed, but get_total_price is already net of points. Let's just use get_total_price as grand total, and list points discount separately if applied. Actually, get_total_price includes points discount. Let's show points discount. -->
+                        <span class="text-xl font-black">XAF {{ cart.get_total_price }}</span>
+                    </div>
+                    {% if cart.applied_points %}
+                    <div class="flex justify-between items-center text-jofa-gold">
+                        <span class="text-[11px] uppercase tracking-widest font-bold flex items-center">
+                            <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Points Applied
+                        </span>
+                        <span class="text-sm font-bold">- XAF {{ cart.get_points_discount }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="flex justify-between items-center">
+                        <span class="text-[11px] uppercase tracking-widest font-bold text-gray-400">Delivery</span>
+                        <span class="text-sm font-bold uppercase tracking-widest text-[#D4AF37]">Complimentary</span>
+                    </div>
+                </div>
+                <a href="{% url 'orders:order_create' %}"
+                    class="w-full bg-jofa-gold text-black py-6 block text-center text-[12px] font-black uppercase tracking-[0.4em] hover:bg-jofa-beige transition-all">Proceed
+                    to Checkout</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    </div>
+</section>
+{% endblock %}

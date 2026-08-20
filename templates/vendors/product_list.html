@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}My products | Seller{% endblock %}
+
+{% block content %}
+<section class="py-16 bg-jofa-beige min-h-screen">
+    <div class="container mx-auto px-6 md:px-12 max-w-6xl">
+        <div class="flex justify-between items-end mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl serif">Products</h1>
+                <p class="text-sm mt-1">{{ vendor.store_name }}</p>
+            </div>
+            <a href="{% url 'vendors:product_add' %}" class="btn-gold py-3 px-6 uppercase text-[10px] tracking-widest">Add product</a>
+        </div>
+        {% include 'vendors/_nav.html' %}
+
+        <div class="overflow-x-auto border border-gray-200 bg-white/40">
+            <table class="w-full text-left text-sm">
+                <thead>
+                    <tr class="border-b border-gray-200 text-[10px] uppercase tracking-widest">
+                        <th class="p-4">Product</th>
+                        <th class="p-4">Price</th>
+                        <th class="p-4">Stock</th>
+                        <th class="p-4">Status</th>
+                        <th class="p-4"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in products %}
+                    <tr class="border-b border-gray-100">
+                        <td class="p-4 font-bold">{{ p.name }}</td>
+                        <td class="p-4">XAF {{ p.price }}</td>
+                        <td class="p-4">{{ p.stock }}</td>
+                        <td class="p-4">{% if p.available %}Live{% else %}Hidden{% endif %}</td>
+                        <td class="p-4 text-right space-x-3">
+                            <a href="{% url 'vendors:product_edit' p.pk %}" class="underline text-[10px] uppercase tracking-widest font-black">Edit</a>
+                            <a href="{% url 'vendors:product_delete' p.pk %}" class="underline text-[10px] uppercase tracking-widest font-black text-red-600">Delete</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td class="p-8 text-gray-500" colspan="5">No products yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

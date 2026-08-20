@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order History | JOFA Essence{% endblock %}
+
+{% block content %}
+<section class="py-32 bg-jofa-beige min-h-screen">
+    <div class="container mx-auto px-6 md:px-12 max-w-5xl">
+        <div class="mb-16">
+            <span class="text-xs uppercase tracking-[0.4em] font-black text-jofa-gold mb-6 block">Account
+                Dashboard</span>
+            <h1 class="text-6xl serif text-jofa-onyx font-black leading-tight">Order History</h1>
+        </div>
+
+        <div class="grid grid-cols-1 gap-8">
+            {% for order in orders %}
+            <div
+                class="bg-jofa-beige p-10 shadow-sm border border-gray-50 hover:shadow-xl transition-all duration-500 group">
+                <div
+                    class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-6 md:space-y-0 pb-8 border-b border-gray-50 mb-8">
+                    <div>
+                        <h3
+                            class="text-xl serif font-black text-jofa-onyx group-hover:text-jofa-gold transition-colors">
+                            Order #{{ order.id }}</h3>
+                        <p class="text-[10px] uppercase tracking-widest font-black text-gray-400 mt-2">{{ order.created|date:"F d, Y" }} at {{ order.created|time:"H:i" }}</p>
+                    </div>
+                    <div class="text-left md:text-right">
+                        <span
+                            class="text-[9px] uppercase tracking-widest font-black bg-jofa-beige px-4 py-2 mb-3 inline-block shadow-sm">
+                            {{ order.get_status_display }}
+                        </span>
+                        <p class="text-2xl font-black text-jofa-onyx">XAF {{ order.get_total_cost }}</p>
+                        <a href="{% url 'orders:order_detail' order.id %}"
+                            class="mt-4 inline-block text-[10px] uppercase tracking-[0.2em] font-black text-jofa-gold hover:text-jofa-onyx border-b border-jofa-gold pb-1 transition-all">View
+                            Receipt</a>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div>
+                        <h4 class="text-[10px] uppercase tracking-widest font-black text-gray-400 mb-6">Delivery Details
+                        </h4>
+                        <p class="text-sm font-bold text-jofa-onyx leading-relaxed">
+                            {{ order.first_name }} {{ order.last_name }}<br>
+                            {{ order.address }}<br>
+                            {{ order.city }}, {{ order.postal_code }}<br>
+                            {{ order.email }}
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="text-[10px] uppercase tracking-widest font-black text-gray-400 mb-6">Items Purchased
+                        </h4>
+                        <ul class="space-y-4">
+                            {% for item in order.items.all %}
+                            <li class="flex justify-between items-center text-sm">
+                                <span class="font-bold text-jofa-onyx">{{ item.quantity }}x {{ item.product.name }}</span>
+                                <span class="text-gray-400">XAF {{ item.price }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-24 bg-jofa-beige border border-dashed border-gray-200">
+                <p class="text-gray-400 italic text-xl mb-8">No orders have been completed yet.</p>
+                <a href="{% url 'products:product_list' %}"
+                    class="btn-gold px-6 md:px-8 md:px-12 py-3 md:py-5 text-[10px] uppercase tracking-widest font-black inline-block">Start Your
+                    Journey</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Seller orders | JOFA{% endblock %}
+
+{% block content %}
+<section class="py-16 bg-jofa-beige min-h-screen">
+    <div class="container mx-auto px-6 md:px-12 max-w-6xl">
+        <h1 class="text-3xl serif mb-2">Orders</h1>
+        <p class="text-sm mb-8">Items sold from {{ vendor.store_name }}</p>
+        {% include 'vendors/_nav.html' %}
+
+        <div class="space-y-4">
+            {% for item in items %}
+            <div class="border border-gray-200 bg-white/40 p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <p class="font-bold text-sm">Order #{{ item.order_id }} · {{ item.product.name }}</p>
+                    <p class="text-[10px] uppercase tracking-widest mt-1">
+                        {{ item.order.first_name }} {{ item.order.last_name }} · {{ item.order.city }} · qty {{ item.quantity }} · XAF {{ item.get_cost }}
+                    </p>
+                    <p class="text-[10px] mt-1">Paid: {% if item.order.paid %}Yes{% else %}No / COD{% endif %}</p>
+                </div>
+                <form method="post" action="{% url 'vendors:order_status' item.pk %}" class="flex items-center gap-2">
+                    {% csrf_token %}
+                    <select name="fulfillment_status" class="border border-gray-300 bg-jofa-beige p-2 text-xs">
+                        {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if item.fulfillment_status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    <button class="btn-gold py-2 px-4 uppercase text-[9px] tracking-widest">Update</button>
+                </form>
+            </div>
+            {% empty %}
+            <p class="text-sm text-gray-500">No sales yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

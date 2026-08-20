@@ -1,0 +1,3 @@
+# fixtures/
+# Generated JSON dumps from scripts/migrate_sqlite_to_mysql.py live here.
+# sqlite_export.json is gitignored.

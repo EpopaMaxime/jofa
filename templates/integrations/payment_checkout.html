@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Choose payment | JOFA{% endblock %}
+
+{% block content %}
+<section class="py-20 bg-jofa-beige">
+    <div class="container mx-auto px-6 md:px-12 max-w-2xl">
+        <p class="text-[11px] uppercase tracking-[0.3em] font-black text-jofa-gold mb-4">Payment</p>
+        <h1 class="text-4xl serif mb-4">Complete your order</h1>
+        <p class="text-sm mb-8">Order #{{ order.id }} · Total <strong>XAF {{ amount }}</strong></p>
+
+        <div class="border border-gray-200 bg-white/50 p-8 shadow-xl space-y-8">
+            <ul class="text-sm space-y-2 border-b border-gray-100 pb-6">
+                <li>{{ order.first_name }} {{ order.last_name }}</li>
+                <li>{{ order.email }}</li>
+                <li>{{ order.address }}, {{ order.city }}</li>
+            </ul>
+
+            <form method="post" class="space-y-5">
+                {% csrf_token %}
+                <p class="text-[10px] uppercase tracking-widest font-black text-jofa-gold">Payment method</p>
+                {% for method in methods %}
+                <label class="flex items-start gap-4 border border-gray-200 p-5 cursor-pointer hover:border-jofa-gold transition-colors {% if method.is_default %}border-jofa-gold bg-jofa-beige/60{% endif %}">
+                    <input type="radio" name="payment_method" value="{{ method.slug }}" class="mt-1"
+                        {% if method.is_default %}checked{% endif %} required>
+                    <span>
+                        <span class="block font-black uppercase tracking-widest text-[11px]">{{ method.label }}</span>
+                        <span class="block text-sm mt-1 text-gray-600">{{ method.description }}</span>
+                    </span>
+                </label>
+                {% empty %}
+                <p class="text-sm text-red-600">No payment methods configured.</p>
+                {% endfor %}
+
+                <button type="submit" class="btn-gold w-full py-4 uppercase text-xs tracking-widest">
+                    Confirm order
+                </button>
+            </form>
+            <p class="text-[10px] text-gray-500 italic">
+                Multi-vendor checkout: choose Cash on delivery now, or another active payment partner when configured (e.g. Stripe).
+            </p>
+        </div>
+    </div>
+</section>
+{% endblock %}

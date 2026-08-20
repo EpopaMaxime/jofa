@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}Client Voices | JOFA Essence{% endblock %}
+
+{% block content %}
+<section class="py-24 bg-jofa-beige min-h-screen">
+    <div class="container mx-auto px-6 md:px-12">
+        <!-- Header -->
+        <div class="text-center max-w-3xl mx-auto mb-24" data-aos="fade-up">
+            <h1 class="text-6xl serif text-jofa-dark mb-6 tracking-tight" data-aos="fade-up" data-aos-delay="100">Client <span class="text-jofa-gold">Voices</span></h1>
+            <div class="w-24 h-1 bg-jofa-gold mx-auto mb-8" data-aos="zoom-in" data-aos-delay="200"></div>
+            <p class="text-xl text-gray-600 font-medium leading-relaxed italic" data-aos="fade-up" data-aos-delay="300">
+                "Our essences are more than just skincare; they are stories of transformation shared by our community across Cameroon and beyond."
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-16">
+            <!-- Reviews List -->
+            <div class="lg:col-span-2 space-y-12">
+                {% for review in reviews %}
+                <div class="bg-white p-12 shadow-sm border border-gray-100 hover:shadow-xl transition-all duration-500 group relative" data-aos="fade-up" data-aos-delay="{{ forloop.counter }}00">
+                    <!-- Rating -->
+                    <div class="flex text-jofa-gold mb-6 text-xl">
+                        {% for i in "12345"|make_list %}
+                        {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Quote -->
+                    <p class="text-xl text-gray-700 font-medium leading-relaxed mb-8 italic">
+                        "{{ review.comment }}"
+                    </p>
+
+                    <!-- Author Meta -->
+                    <div class="flex items-center justify-between pt-8 border-t border-gray-50">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-jofa-beige rounded-full overflow-hidden flex items-center justify-center border border-jofa-gold/20 shadow-inner">
+                                {% if review.user.profile.image %}
+                                <img src="{{ review.user.profile.image.url }}" alt="{{ review.user.username }}" class="w-full h-full object-cover">
+                                {% else %}
+                                <span class="font-black text-jofa-gold text-sm">{{ review.user.first_name|default:review.user.username|slice:":1"|upper }}</span>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-black uppercase tracking-[0.2em] text-jofa-dark">
+                                    {{ review.user.first_name|default:review.user.username }}
+                                </h4>
+                                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                                    {{ review.location|default:"Cameroon" }}
+                                </p>
+                            </div>
+                        </div>
+                        {% if review.product %}
+                        <a href="{{ review.product.get_absolute_url }}" class="text-[9px] font-black uppercase tracking-widest text-jofa-gold hover:text-jofa-dark transition-colors">
+                            Ref: {{ review.product.name }}
+                        </a>
+                        {% endif %}
+                    </div>
+
+                    <!-- Date Tag -->
+                    <div class="absolute top-8 right-8 text-[9px] font-black text-gray-300 uppercase tracking-widest">
+                        {{ review.created_at|date:"M Y" }}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-24 border-2 border-dashed border-gray-100">
+                    <p class="text-gray-400 italic">The silence is beautiful, but your voice is power. Be the first to share.</p>
+                </div>
+                {% endfor %}
+
+                <!-- Pagination -->
+                {% if is_paginated %}
+                <div class="pt-12 flex justify-center space-x-6">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="text-[10px] font-black uppercase tracking-[0.3em] text-jofa-gold hover:text-jofa-dark transition-colors">← Previous</a>
+                    {% endif %}
+                    <span class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="text-[10px] font-black uppercase tracking-[0.3em] text-jofa-gold hover:text-jofa-dark transition-colors">Next →</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Review Form Sidebar -->
+            <div class="lg:col-span-1">
+                <div class="bg-jofa-dark p-10 text-white sticky top-32 shadow-2xl">
+                    <h3 class="text-2xl serif mb-4">Share Your Journey</h3>
+                    <p class="text-gray-400 text-xs font-medium uppercase tracking-widest mb-8 leading-loose">
+                        Your experience helps our community grow. Tell us how JOFA Essence has transformed your skin.
+                    </p>
+
+                    {% if user.is_authenticated %}
+                    <form action="{% url 'reviews:review_add_general' %}" method="post" class="space-y-6">
+                        {% csrf_token %}
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-jofa-gold mb-3">Essence Rating</label>
+                            <div class="flex space-x-2">
+                                {% for i in "54321"|make_list %}
+                                <input type="radio" name="rating" value="{{ i }}" id="star{{ i }}" class="hidden peer" {% if i == "5" %}checked{% endif %}>
+                                <label for="star{{ i }}" class="text-2xl cursor-pointer text-gray-600 hover:text-jofa-gold peer-checked:text-jofa-gold transition-colors order-{{ i }}">★</label>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-jofa-gold mb-3">Your Location</label>
+                            <input type="text" name="location" placeholder="e.g. Douala, Cameroon" 
+                                class="w-full bg-transparent border-b border-gray-700 py-3 text-sm focus:border-jofa-gold outline-none transition-colors placeholder:text-gray-700">
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-jofa-gold mb-3">The Experience</label>
+                            <textarea name="comment" rows="4" placeholder="How does it feel?" required
+                                class="w-full bg-transparent border border-gray-700 p-4 text-sm focus:border-jofa-gold outline-none transition-colors placeholder:text-gray-700 resize-none"></textarea>
+                        </div>
+
+                        <button type="submit" class="w-full bg-jofa-gold py-4 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-white hover:text-jofa-dark transition-all duration-500 shadow-xl">
+                            Submit Testimony
+                        </button>
+                    </form>
+                    {% else %}
+                    <div class="text-center py-8 border border-gray-800">
+                        <p class="text-xs font-medium text-gray-500 mb-6 uppercase tracking-widest">Sign in to share your essence</p>
+                        <a href="{% url 'accounts:login' %}" class="inline-block border border-jofa-gold px-8 py-3 text-[9px] font-black uppercase tracking-widest hover:bg-jofa-gold transition-colors">Login</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

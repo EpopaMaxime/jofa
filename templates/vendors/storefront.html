@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ vendor.store_name }} | JOFA Marketplace{% endblock %}
+
+{% block content %}
+<section class="py-16 bg-jofa-beige">
+    <div class="container mx-auto px-6 md:px-12 max-w-6xl">
+        <div class="mb-12">
+            {% if vendor.banner %}
+            <img src="{{ vendor.banner.url }}" alt="" class="w-full h-48 object-cover mb-8">
+            {% endif %}
+            <div class="flex items-start gap-6">
+                {% if vendor.logo %}
+                <img src="{{ vendor.logo.url }}" alt="{{ vendor.store_name }}" class="w-20 h-20 object-cover">
+                {% endif %}
+                <div>
+                    <p class="text-[11px] uppercase tracking-[0.3em] font-black text-jofa-gold mb-2">Seller store</p>
+                    <h1 class="text-4xl serif mb-2">{{ vendor.store_name }}</h1>
+                    {% if vendor.tagline %}<p class="text-sm mb-2">{{ vendor.tagline }}</p>{% endif %}
+                    <p class="text-sm max-w-2xl">{{ vendor.description }}</p>
+                    <p class="text-[10px] uppercase tracking-widest font-black mt-4">{{ vendor.city }}{% if vendor.country %}, {{ vendor.country }}{% endif %}</p>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="text-2xl serif mb-8">Products</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {% for product in products %}
+            <a href="{{ product.get_absolute_url }}" class="block border border-gray-200 bg-white/40 p-4 hover:border-jofa-gold transition-colors">
+                {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-48 object-cover mb-4">
+                {% endif %}
+                <h3 class="serif text-lg mb-2">{{ product.name }}</h3>
+                <p class="font-black text-sm">XAF {{ product.get_discounted_price }}</p>
+            </a>
+            {% empty %}
+            <p class="text-sm text-gray-500 col-span-4">This seller has no live products yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

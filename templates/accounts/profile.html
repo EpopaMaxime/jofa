@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile | JOFA{% endblock %}
+
+{% block content %}
+<section class="py-24 bg-jofa-beige">
+    <div class="container mx-auto px-6 md:px-12">
+        <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
+
+            <!-- Sidebar -->
+            <div class="col-span-1 border-r border-gray-100 pr-12">
+                <div class="text-center md:text-left mb-12">
+                    <div class="w-24 h-24 bg-jofa-beige rounded-full mx-auto md:mx-0 mb-6 flex items-center justify-center border border-jofa-gold/20 overflow-hidden shadow-xl">
+                        {% if user.profile.image %}
+                        <img src="{{ user.profile.image.url }}" alt="Avatar" class="w-full h-full object-cover">
+                        {% else %}
+                        <span class="text-jofa-gold text-3xl serif">{{ user.username|first|upper }}</span>
+                        {% endif %}
+                    </div>
+                    <h2 class="text-2xl serif text-jofa-dark mb-1">{{ user.get_full_name|default:user.username }}</h2>
+                    <p class="text-[10px] uppercase tracking-widest text-jofa-gold font-bold">Member since {{ user.date_joined|date:"M Y" }}</p>
+                </div>
+
+                <nav class="space-y-4">
+                    <a href="#" class="block text-xs uppercase tracking-widest font-bold text-jofa-gold">Profile
+                        Overview</a>
+                    <a href="{% url 'orders:order_history' %}"
+                        class="block text-xs uppercase tracking-widest font-bold text-gray-400 hover:text-jofa-dark transition-colors">Order
+                        History</a>
+                    <a href="{% url 'products:wishlist_detail' %}"
+                        class="block text-xs uppercase tracking-widest font-bold text-gray-400 hover:text-jofa-onyx transition-colors">Wishlist</a>
+                    <form action="{% url 'accounts:logout' %}" method="post" class="pt-8">
+                        {% csrf_token %}
+                        <button type="submit"
+                            class="text-xs uppercase tracking-widest font-bold text-red-400 hover:text-red-500 transition-colors">Logout</button>
+                    </form>
+                </nav>
+            </div>
+
+            <!-- Dashboard -->
+            <div class="col-span-3">
+                <div class="bg-jofa-beige p-12 shadow-sm rounded-sm mb-12">
+                    <div class="flex justify-between items-center border-b border-gray-50 pb-4 mb-8">
+                        <h3 class="text-xl serif text-jofa-dark font-black">Personal Details</h3>
+                        <a href="{% url 'accounts:profile_update' %}"
+                            class="text-[10px] uppercase tracking-widest font-black text-jofa-gold hover:text-jofa-dark transition-colors">Edit
+                            Profile</a>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <p class="text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-1">Email</p>
+                            <p class="text-sm font-medium">{{ user.email }}</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-1">Phone</p>
+                            <p class="text-sm font-medium">{{ profile.phone|default:"Not provided" }}</p>
+                        </div>
+                        <div class="md:col-span-2">
+                            <p class="text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-1">Full Address
+                            </p>
+                            <p class="text-sm font-medium">{{ profile.address|default:"No address saved" }}, {{ profile.city }} {{ profile.country }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Jofa Rewards Summary -->
+                <div class="bg-jofa-onyx text-white p-12 shadow-sm rounded-sm mb-12">
+                    <div class="flex justify-between items-center border-b border-gray-700 pb-4 mb-8">
+                        <h3 class="text-xl serif font-black text-jofa-gold">Jofa Rewards</h3>
+                        <a href="{% url 'products:product_list' %}"
+                            class="text-[10px] uppercase tracking-widest font-black text-white hover:text-jofa-gold transition-colors">Earn
+                            More</a>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="text-5xl font-black serif text-jofa-gold mr-6">{{ available_points }}</div>
+                        <div>
+                            <p class="text-[10px] uppercase tracking-widest font-bold text-gray-400">Available Points
+                            </p>
+                            <p class="text-xs mt-1 text-gray-300">Use points at checkout to unlock exclusive rewards.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-jofa-beige p-12 shadow-sm rounded-sm">
+                    <h3 class="text-xl serif text-jofa-dark mb-8 border-b border-gray-50 pb-4">Recent Orders</h3>
+                    {% if orders %}
+                    <div class="space-y-6">
+                        {% for order in orders|slice:":3" %}
+                        <div class="flex justify-between items-center bg-jofa-beige p-6 rounded-sm">
+                            <div>
+                                <h4 class="text-sm font-bold uppercase tracking-widest mb-1">Order #{{ order.id }}</h4>
+                                <p class="text-[10px] text-gray-500">{{ order.created|date:"F d, Y" }}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-bold text-jofa-gold">XAF {{ order.get_total_cost }}</p>
+                                <span
+                                    class="text-[9px] uppercase tracking-widest font-bold bg-jofa-beige px-3 py-1 mt-2 inline-block shadow-sm">{{ order.get_status_display }}</span>
+                                <a href="{% url 'orders:order_detail' order.id %}"
+                                    class="block mt-3 text-[9px] uppercase tracking-widest font-black text-jofa-onyx hover:text-jofa-gold transition-colors">View
+                                    Receipt</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-sm text-gray-400 italic">You haven't placed any orders yet.</p>
+                    <a href="{% url 'products:product_list' %}"
+                        class="mt-6 inline-block text-xs uppercase tracking-widest font-bold text-jofa-gold border-b border-jofa-gold pb-1">Start
+                        Shopping</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

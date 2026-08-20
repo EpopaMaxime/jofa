@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Join JOFA | Premium Skincare{% endblock %}
+
+{% block content %}
+<section class="py-32 bg-jofa-softgreen flex items-center justify-center min-h-[80vh]">
+    <div class="w-full max-w-xl bg-jofa-beige p-12 shadow-xl rounded-sm">
+        <h1 class="text-3xl serif text-jofa-dark mb-4 text-center uppercase tracking-widest">Create Account</h1>
+        <p class="text-center text-gray-500 text-sm mb-12 font-light italic">Join our community for exclusive skincare
+            essences and rewards.</p>
+
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            {% for field in form %}
+            <div>
+                <label class="block text-[10px] uppercase tracking-widest font-bold mb-2">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                <p class="text-red-500 text-[10px] mt-1">{{ field.errors }}</p>
+                {% endif %}
+                {% if field.help_text %}
+                <p class="text-gray-400 text-[9px] mt-1">{{ field.help_text }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+            <button type="submit"
+                class="w-full btn-gold py-3 md:py-4 uppercase text-xs tracking-widest font-bold shadow-lg mt-8">Register
+                Now</button>
+        </form>
+
+        <div class="mt-8 text-center border-t border-gray-100 pt-8">
+            <p class="text-[10px] uppercase tracking-widest font-bold text-gray-400">
+                Already have an account? <a href="{% url 'accounts:login' %}"
+                    class="text-jofa-gold hover:underline">Sign In</a>
+            </p>
+        </div>
+    </div>
+</section>
+
+<style>
+    input,
+    select,
+    textarea {
+        width: 100%;
+        border: 1px solid #F1F1F1;
+        padding: 1rem;
+        font-size: 0.875rem;
+        outline: none;
+        transition: border-color 0.3s;
+    }
+
+    input:focus {
+        border-color: #A58B7C;
+        box-shadow: 0 0 0 2px rgba(165, 139, 124, 0.1);
+    }
+</style>
+{% endblock %}
