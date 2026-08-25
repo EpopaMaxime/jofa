@@ -1,6 +1,27 @@
 {% extends 'base.html' %}
+{% load blog_extras %}
 
 {% block title %}{{ post.title }} | JOFA Journal{% endblock %}
+
+{% block extra_css %}
+<style>
+    .blog-content h1, .blog-content h2, .blog-content h3 {
+        font-family: 'Outfit', sans-serif;
+        color: #0F2D32;
+        font-weight: 800;
+        margin: 1.75em 0 0.6em;
+        line-height: 1.25;
+    }
+    .blog-content h2 { font-size: 1.75rem; }
+    .blog-content h3 { font-size: 1.35rem; }
+    .blog-content p { margin-bottom: 1.25em; }
+    .blog-content ul, .blog-content ol { margin: 0 0 1.25em 1.25em; }
+    .blog-content li { margin-bottom: 0.4em; }
+    .blog-content a { color: #A58B7C; text-decoration: underline; }
+    .blog-content img { max-width: 100%; height: auto; margin: 1.5em 0; }
+    .blog-content strong { color: #0F2D32; }
+</style>
+{% endblock %}
 
 {% block content %}
 <section class="py-24 bg-jofa-beige">
@@ -17,8 +38,8 @@
         </div>
         {% endif %}
 
-        <div class="prose prose-lg mx-auto text-gray-600 leading-relaxed font-light">
-            {{ post.content|linebreaks }}
+        <div class="blog-content prose prose-lg mx-auto text-gray-600 leading-relaxed font-light">
+            {{ post.content|as_rich_text }}
         </div>
 
         <div class="mt-24 pt-12 border-t border-gray-100 flex justify-between items-center">
