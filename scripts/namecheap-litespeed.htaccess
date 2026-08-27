@@ -1,0 +1,12 @@
+# Merge into public_html/.htaccess on Namecheap (LiteSpeed).
+# LiteSpeed/ModSecurity often returns 403 when a POST body is over ~128KB
+# (SecRequestBodyLimit). Consultation photo uploads hit that limit.
+
+<IfModule mod_security.c>
+  SecRequestBodyLimit 10485760
+  SecRequestBodyNoFilesLimit 1048576
+</IfModule>
+
+# If uploads still return LiteSpeed 403:
+# cPanel → Security → ModSecurity → disable for this domain,
+# or open a Namecheap ticket to whitelist POST /consult/.

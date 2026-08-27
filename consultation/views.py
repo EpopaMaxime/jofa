@@ -1,7 +1,9 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views import View
 from django.views.generic import DetailView, FormView, ListView
 
@@ -12,6 +14,10 @@ from recommendations.models import RoutineBundle
 from .ai import SkinAnalyzer
 from .forms import ConsultationPhotoForm, ConsultationStartForm
 from .models import ConsultationPhoto, SkinConsultation
+
+
+def _wants_json(request):
+    return request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
 
 def _get_consultation(request, public_id):
@@ -83,51 +89,77 @@ class ConsultationUploadView(View):
             pending_files = form.cleaned_data.get('images') or []
             angle = form.cleaned_data.get('angle') or 'face'
         elif request.FILES:
-            messages.error(request, 'Some files could not be uploaded. Use JPG, PNG or WEBP images.')
+            msg = 'Some files could not be uploaded. Use JPG, PNG or WEBP images.'
+            if _wants_json(request):
+                return JsonResponse({'ok': False, 'message': msg}, status=400)
+            messages.error(request, msg)
             return redirect('consultation:upload', public_id=public_id)
 
         existing = consultation.photos.filter(deleted=False).count()
         max_photos = getattr(settings, 'CONSULTATION_MAX_PHOTOS', 4)
         remaining = max(0, max_photos - existing)
+        upload_url = reverse('consultation:upload', args=[public_id])
+        results_url = reverse('consultation:results', args=[public_id])
 
         if pending_files:
             if remaining <= 0:
-                messages.error(request, f'Maximum {max_photos} photos per consultation.')
-            else:
-                saved = 0
-                for upload in pending_files[:remaining]:
-                    ConsultationPhoto.objects.create(
-                        consultation=consultation,
-                        image=upload,
-                        angle=angle,
-                    )
-                    saved += 1
-                skipped = len(pending_files) - saved
-                if skipped:
-                    messages.warning(
-                        request,
-                        f'{saved} photo(s) uploaded. {skipped} skipped (limit {max_photos}).',
-                    )
-                else:
-                    messages.success(request, f'{saved} photo(s) uploaded.')
+                msg = f'Maximum {max_photos} photos per consultation.'
+                if _wants_json(request):
+                    return JsonResponse({'ok': False, 'message': msg}, status=400)
+                messages.error(request, msg)
+                return redirect('consultation:upload', public_id=public_id)
+            saved = 0
+            for upload in pending_files[:remaining]:
+                ConsultationPhoto.objects.create(
+                    consultation=consultation,
+                    image=upload,
+                    angle=angle,
+                )
+                saved += 1
+            skipped = len(pending_files) - saved
+            if skipped:
+                messages.warning(
+                    request,
+                    f'{saved} photo(s) uploaded. {skipped} skipped (limit {max_photos}).',
+                )
+            elif not _wants_json(request):
+                messages.success(request, f'{saved} photo(s) uploaded.')
+            if _wants_json(request) and action != 'analyze':
+                return JsonResponse(
+                    {
+                        'ok': True,
+                        'message': f'{saved} photo(s) uploaded.',
+                        'count': consultation.photos.filter(deleted=False).count(),
+                    }
+                )
 
         if action == 'analyze':
             if not consultation.photos.filter(deleted=False).exists():
-                messages.error(request, 'Please select at least one photo, then click Upload or Analyze.')
+                msg = 'Please select at least one photo, then click Upload or Analyze.'
+                if _wants_json(request):
+                    return JsonResponse({'ok': False, 'message': msg}, status=400)
+                messages.error(request, msg)
                 return redirect('consultation:upload', public_id=public_id)
             consultation.status = 'analyzing'
             consultation.save(update_fields=['status'])
             try:
                 SkinAnalyzer().apply_to_consultation(consultation)
                 messages.success(request, 'Your AI skin consultation is ready.')
+                if _wants_json(request):
+                    return JsonResponse({'ok': True, 'redirect': results_url})
                 return redirect('consultation:results', public_id=public_id)
             except Exception as exc:
                 consultation.status = 'failed'
                 consultation.analysis_summary = str(exc)
                 consultation.save(update_fields=['status', 'analysis_summary'])
-                messages.error(request, 'Analysis failed. Please try again.')
+                msg = 'Analysis failed. Please try again.'
+                if _wants_json(request):
+                    return JsonResponse({'ok': False, 'message': msg}, status=500)
+                messages.error(request, msg)
                 return redirect('consultation:upload', public_id=public_id)
 
+        if _wants_json(request):
+            return JsonResponse({'ok': True, 'redirect': upload_url})
         return redirect('consultation:upload', public_id=public_id)
 
 

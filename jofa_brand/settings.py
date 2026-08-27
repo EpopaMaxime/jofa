@@ -31,10 +31,23 @@ ALLOWED_HOSTS = [
     host.strip()
     for host in os.getenv(
         'DJANGO_ALLOWED_HOSTS',
-        'localhost,127.0.0.1,hanzfx.pythonanywhere.com',
+        'localhost,127.0.0.1,hanzfx.pythonanywhere.com,jofaskincare.com,www.jofaskincare.com',
     ).split(',')
     if host.strip()
 ]
+
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv(
+        'DJANGO_CSRF_TRUSTED_ORIGINS',
+        'https://jofaskincare.com,https://www.jofaskincare.com,'
+        'http://127.0.0.1:8000,http://localhost:8000',
+    ).split(',')
+    if origin.strip()
+]
+
+# Namecheap / LiteSpeed often terminates SSL in front of Passenger.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 # Application definition
