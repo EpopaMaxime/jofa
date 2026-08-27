@@ -1,12 +1,11 @@
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 
-from orders.models import Order
+from orders.access import get_accessible_order, user_can_access_order
 
 from .models import PaymentTransaction
 from .services.delivery import create_shipment_for_order
@@ -17,11 +16,14 @@ from .services.payments import (
 )
 
 
-class PaymentCheckoutView(LoginRequiredMixin, View):
+class PaymentCheckoutView(View):
     template_name = 'integrations/payment_checkout.html'
 
     def get(self, request, order_id):
-        order = get_object_or_404(Order, id=order_id, user=request.user)
+        order = get_accessible_order(request, order_id)
+        if order is None:
+            messages.error(request, 'You can complete this order as a guest from the same browser, or sign in if you placed it with an account.')
+            return redirect('accounts:login')
         if order.paid:
             messages.info(request, 'This order is already paid.')
             return redirect('orders:order_detail', order_id=order.id)
@@ -44,7 +46,10 @@ class PaymentCheckoutView(LoginRequiredMixin, View):
         )
 
     def post(self, request, order_id):
-        order = get_object_or_404(Order, id=order_id, user=request.user)
+        order = get_accessible_order(request, order_id)
+        if order is None:
+            messages.error(request, 'You can complete this order as a guest from the same browser, or sign in if you placed it with an account.')
+            return redirect('accounts:login')
         if order.paid:
             return redirect('orders:order_detail', order_id=order.id)
 
@@ -99,11 +104,13 @@ class PaymentCheckoutView(LoginRequiredMixin, View):
         return redirect('orders:order_detail', order_id=order.id)
 
 
-class PaymentConfirmView(LoginRequiredMixin, View):
+class PaymentConfirmView(View):
     """Confirm a pending simulate/COD transaction (legacy endpoint)."""
 
     def post(self, request, order_id):
-        order = get_object_or_404(Order, id=order_id, user=request.user)
+        if get_accessible_order(request, order_id) is None:
+            messages.error(request, 'Access denied.')
+            return redirect('accounts:login')
         method = request.POST.get('payment_method') or 'cod'
         request.POST = request.POST.copy()
         request.POST['payment_method'] = method
@@ -114,13 +121,13 @@ class PaymentConfirmView(LoginRequiredMixin, View):
         return view.post(request, order_id)
 
 
-class PaymentSuccessView(LoginRequiredMixin, View):
+class PaymentSuccessView(View):
     def get(self, request):
         session_id = request.GET.get('session_id')
         if not session_id:
             return HttpResponseBadRequest('Missing session_id')
         txn = get_object_or_404(PaymentTransaction, external_id=session_id)
-        if txn.order.user_id != request.user.id and not request.user.is_staff:
+        if not user_can_access_order(request, txn.order):
             messages.error(request, 'Access denied.')
             return redirect('core:home')
         gateway = get_payment_gateway(txn.provider_slug)
@@ -136,9 +143,12 @@ class PaymentSuccessView(LoginRequiredMixin, View):
         return redirect('orders:order_detail', order_id=txn.order_id)
 
 
-class PaymentCancelView(LoginRequiredMixin, View):
+class PaymentCancelView(View):
     def get(self, request, order_id):
-        order = get_object_or_404(Order, id=order_id, user=request.user)
+        order = get_accessible_order(request, order_id)
+        if order is None:
+            messages.error(request, 'Access denied.')
+            return redirect('accounts:login')
         messages.warning(request, 'Payment was cancelled. You can try again anytime.')
         return redirect('integrations:payment_checkout', order_id=order.id)
 

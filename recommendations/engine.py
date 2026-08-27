@@ -1,6 +1,6 @@
-from django.db.models import Q
+from django.db.models import Prefetch, Q
 from products.models import Product
-from .models import ConcernProductMap, RoutineBundle, SkinConcern
+from .models import ConcernProductMap, RoutineBundle, RoutineStep, SkinConcern
 
 
 class RecommendationEngine:
@@ -48,8 +48,12 @@ class RecommendationEngine:
         return list(qs.order_by('-featured', '-created_at')[:limit])
 
     def routines_for_profile(self, concern_codes=None, skin_type=None, limit=3):
+        steps_qs = RoutineStep.objects.select_related('product').prefetch_related(
+            'product__images'
+        )
         qs = RoutineBundle.objects.filter(is_active=True).prefetch_related(
-            'steps__product', 'concerns'
+            Prefetch('steps', queryset=steps_qs),
+            'concerns',
         )
         if skin_type:
             qs = qs.filter(Q(skin_type=skin_type) | Q(skin_type='') | Q(skin_type='all'))

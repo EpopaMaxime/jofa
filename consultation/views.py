@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, redirect, render
@@ -10,7 +11,7 @@ from recommendations.models import RoutineBundle
 
 from .ai import SkinAnalyzer
 from .forms import ConsultationPhotoForm, ConsultationStartForm
-from .models import SkinConsultation
+from .models import ConsultationPhoto, SkinConsultation
 
 
 def _get_consultation(request, public_id):
@@ -64,6 +65,7 @@ class ConsultationUploadView(View):
                 'consultation': consultation,
                 'form': ConsultationPhotoForm(),
                 'photos': consultation.photos.filter(deleted=False),
+                'max_photos': getattr(settings, 'CONSULTATION_MAX_PHOTOS', 4),
             },
         )
 
@@ -74,9 +76,44 @@ class ConsultationUploadView(View):
             return redirect('consultation:landing')
 
         action = request.POST.get('action', 'upload')
+        form = ConsultationPhotoForm(request.POST, request.FILES)
+        pending_files = []
+        angle = 'face'
+        if form.is_valid():
+            pending_files = form.cleaned_data.get('images') or []
+            angle = form.cleaned_data.get('angle') or 'face'
+        elif request.FILES:
+            messages.error(request, 'Some files could not be uploaded. Use JPG, PNG or WEBP images.')
+            return redirect('consultation:upload', public_id=public_id)
+
+        existing = consultation.photos.filter(deleted=False).count()
+        max_photos = getattr(settings, 'CONSULTATION_MAX_PHOTOS', 4)
+        remaining = max(0, max_photos - existing)
+
+        if pending_files:
+            if remaining <= 0:
+                messages.error(request, f'Maximum {max_photos} photos per consultation.')
+            else:
+                saved = 0
+                for upload in pending_files[:remaining]:
+                    ConsultationPhoto.objects.create(
+                        consultation=consultation,
+                        image=upload,
+                        angle=angle,
+                    )
+                    saved += 1
+                skipped = len(pending_files) - saved
+                if skipped:
+                    messages.warning(
+                        request,
+                        f'{saved} photo(s) uploaded. {skipped} skipped (limit {max_photos}).',
+                    )
+                else:
+                    messages.success(request, f'{saved} photo(s) uploaded.')
+
         if action == 'analyze':
             if not consultation.photos.filter(deleted=False).exists():
-                messages.error(request, 'Please upload at least one clear skin photo.')
+                messages.error(request, 'Please select at least one photo, then click Upload or Analyze.')
                 return redirect('consultation:upload', public_id=public_id)
             consultation.status = 'analyzing'
             consultation.save(update_fields=['status'])
@@ -91,26 +128,7 @@ class ConsultationUploadView(View):
                 messages.error(request, 'Analysis failed. Please try again.')
                 return redirect('consultation:upload', public_id=public_id)
 
-        form = ConsultationPhotoForm(request.POST, request.FILES)
-        if form.is_valid():
-            if consultation.photos.filter(deleted=False).count() >= 4:
-                messages.error(request, 'Maximum 4 photos per consultation.')
-            else:
-                photo = form.save(commit=False)
-                photo.consultation = consultation
-                photo.save()
-                messages.success(request, 'Photo uploaded.')
-            return redirect('consultation:upload', public_id=public_id)
-
-        return render(
-            request,
-            self.template_name,
-            {
-                'consultation': consultation,
-                'form': form,
-                'photos': consultation.photos.filter(deleted=False),
-            },
-        )
+        return redirect('consultation:upload', public_id=public_id)
 
 
 class ConsultationResultsView(DetailView):
@@ -134,7 +152,11 @@ class ConsultationResultsView(DetailView):
             self.object.concern_codes(),
             skin_type=self.object.detected_skin_type,
         )
-        context['products'] = list(self.object.recommended_products.filter(available=True))
+        context['products'] = list(
+            self.object.recommended_products.filter(available=True).prefetch_related(
+                'images'
+            )
+        )
         context['payload'] = self.object.analysis_payload or {}
         return context
 

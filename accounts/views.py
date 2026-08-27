@@ -8,7 +8,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Profile
-from .forms import UserUpdateForm, ProfileUpdateForm, CustomRegistrationForm
+from .forms import (
+    CustomRegistrationForm,
+    EmailOrUsernameAuthenticationForm,
+    ProfileUpdateForm,
+    UserUpdateForm,
+)
 from rewards.utils import get_user_points
 
 class SignUpView(CreateView):
@@ -18,6 +23,8 @@ class SignUpView(CreateView):
 
 class UserLoginView(LoginView):
     template_name = 'accounts/login.html'
+    authentication_form = EmailOrUsernameAuthenticationForm
+    redirect_authenticated_user = True
 
 class UserLogoutView(LogoutView):
     next_page = reverse_lazy('core:home')

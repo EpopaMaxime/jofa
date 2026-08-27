@@ -166,6 +166,11 @@ LOGIN_REDIRECT_URL = 'core:home'
 LOGOUT_REDIRECT_URL = None  # Allow admin to use its default, storefront handled in views
 LOGIN_URL = 'accounts:login'
 
+AUTHENTICATION_BACKENDS = [
+    'accounts.authentication.EmailOrUsernameModelBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 CART_SESSION_ID = 'cart'
 
 # Email Configuration (GMAIL SMTP)

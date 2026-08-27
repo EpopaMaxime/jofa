@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.views.generic import TemplateView, CreateView, ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from .access import remember_guest_order, user_can_access_order
 from .cart import Cart
 from products.models import Product, Coupon
 from .models import Order, OrderItem
@@ -74,7 +75,7 @@ class CouponApplyView(View):
             messages.error(request, 'Invalid or expired coupon code.')
         return redirect('orders:cart_detail')
 
-class OrderCreateView(LoginRequiredMixin, CreateView):
+class OrderCreateView(CreateView):
     model = Order
     fields = ['first_name', 'last_name', 'email', 'address', 'postal_code', 'city', 'phone_number']
     template_name = 'orders/order_create.html'
@@ -102,7 +103,10 @@ class OrderCreateView(LoginRequiredMixin, CreateView):
             return redirect('orders:cart_detail')
 
         order = form.save(commit=False)
-        order.user = self.request.user
+        if self.request.user.is_authenticated:
+            order.user = self.request.user
+        else:
+            order.user = None
         order.paid = False
         order.status = 'pending'
         order.save()
@@ -123,6 +127,10 @@ class OrderCreateView(LoginRequiredMixin, CreateView):
                     transaction_type='redeemed',
                     order_reference=str(order.id)
                 )
+        else:
+            if not self.request.session.session_key:
+                self.request.session.create()
+            remember_guest_order(self.request, order)
 
         cart.clear()
         from django.contrib import messages
@@ -136,7 +144,11 @@ class OrderHistoryView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user)
-class OrderDetailView(LoginRequiredMixin, View):
+class OrderDetailView(View):
     def get(self, request, order_id):
-        order = get_object_or_404(Order, id=order_id, user=request.user)
+        order = get_object_or_404(Order, id=order_id)
+        if not user_can_access_order(request, order):
+            from django.contrib import messages
+            messages.error(request, 'You need to sign in to view this order, or checkout again from this device.')
+            return redirect('accounts:login')
         return render(request, 'orders/order_detail.html', {'order': order})

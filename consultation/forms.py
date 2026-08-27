@@ -1,4 +1,7 @@
 from django import forms
+from django.core.files.uploadedfile import UploadedFile
+from django.forms.widgets import ClearableFileInput
+
 from .models import SkinConsultation, ConsultationPhoto
 
 
@@ -53,13 +56,41 @@ class ConsultationStartForm(forms.ModelForm):
         return self.cleaned_data['consent_analysis']
 
 
-class ConsultationPhotoForm(forms.ModelForm):
-    class Meta:
-        model = ConsultationPhoto
-        fields = ['image', 'angle']
-        widgets = {
-            'image': forms.ClearableFileInput(
-                attrs={'class': INPUT_CLASS, 'accept': 'image/*'}
-            ),
-            'angle': forms.Select(attrs={'class': INPUT_CLASS}),
-        }
+class MultipleFileInput(ClearableFileInput):
+    allow_multiple_selected = True
+
+
+class MultipleFileField(forms.FileField):
+    def clean(self, data, initial=None):
+        if not data:
+            return []
+        single = super().clean
+        if isinstance(data, (list, tuple)):
+            return [single(item, initial) for item in data]
+        return [single(data, initial)]
+
+
+class ConsultationPhotoForm(forms.Form):
+    images = MultipleFileField(
+        required=False,
+        widget=MultipleFileInput(
+            attrs={'class': INPUT_CLASS, 'accept': 'image/*', 'multiple': True}
+        ),
+        label='Photos',
+    )
+    angle = forms.ChoiceField(
+        choices=ConsultationPhoto.ANGLE_CHOICES,
+        widget=forms.Select(attrs={'class': INPUT_CLASS}),
+        initial='face',
+    )
+
+    def clean_images(self):
+        files = self.files.getlist('images') if self.files else []
+        cleaned = []
+        for upload in files:
+            if not isinstance(upload, UploadedFile):
+                continue
+            if not (upload.content_type or '').startswith('image/'):
+                raise forms.ValidationError('Please select image files only (JPG, PNG, WEBP).')
+            cleaned.append(upload)
+        return cleaned

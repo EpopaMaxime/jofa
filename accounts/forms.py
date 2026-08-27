@@ -1,6 +1,8 @@
 from django import forms
+from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.db.models import Q
 from .models import Profile
 
 class UserUpdateForm(forms.ModelForm):
@@ -55,3 +57,50 @@ class CustomRegistrationForm(UserCreationForm):
             profile.country = self.cleaned_data.get('country', '')
             profile.save()
         return user
+
+
+class EmailOrUsernameAuthenticationForm(AuthenticationForm):
+    error_messages = {
+        'invalid_login': (
+            'Incorrect username/email or password. Please check your details and try again.'
+        ),
+        'inactive': 'This account is disabled. Please contact JOFA support.',
+        'unknown_account': 'No account was found with this username or email.',
+        'bad_password': 'The password is incorrect. Please try again.',
+    }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].label = 'Username or email'
+        self.fields['username'].widget.attrs.update(
+            {
+                'placeholder': 'Username or email',
+                'autocomplete': 'username',
+            }
+        )
+        self.fields['password'].widget.attrs.update({'autocomplete': 'current-password'})
+
+    def clean(self):
+        username = (self.cleaned_data.get('username') or '').strip()
+        password = self.cleaned_data.get('password')
+        if username:
+            self.cleaned_data['username'] = username
+        if username and password:
+            exists = User.objects.filter(
+                Q(username__iexact=username) | Q(email__iexact=username)
+            ).exists()
+            if not exists:
+                raise forms.ValidationError(
+                    self.error_messages['unknown_account'],
+                    code='unknown_account',
+                )
+            self.user_cache = authenticate(
+                self.request, username=username, password=password
+            )
+            if self.user_cache is None:
+                raise forms.ValidationError(
+                    self.error_messages['bad_password'],
+                    code='bad_password',
+                )
+            self.confirm_login_allowed(self.user_cache)
+        return self.cleaned_data

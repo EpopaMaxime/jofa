@@ -6,20 +6,30 @@
 <section class="py-32 bg-jofa-beige flex items-center justify-center min-h-[80vh]">
     <div class="w-full max-w-md bg-jofa-beige p-12 shadow-xl rounded-sm">
         <h1 class="text-3xl serif text-jofa-dark mb-8 text-center uppercase tracking-widest">Sign In</h1>
+        {% if form.non_field_errors %}
+        <div class="mb-6 border border-red-300 bg-red-50 p-4 text-sm text-red-700" role="alert">
+            {% for error in form.non_field_errors %}
+            <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
         <form method="post" class="space-y-6">
             {% csrf_token %}
+            {% if next %}
+            <input type="hidden" name="next" value="{{ next }}">
+            {% endif %}
             <div>
-                <label class="block text-[10px] uppercase tracking-widest font-bold mb-2">Username</label>
+                <label class="block text-[10px] uppercase tracking-widest font-bold mb-2">Username or email</label>
                 {{ form.username }}
                 {% if form.username.errors %}
-                <p class="text-red-500 text-[10px] mt-1">{{ form.username.errors }}</p>
+                <p class="text-red-600 text-xs mt-2">{{ form.username.errors.0 }}</p>
                 {% endif %}
             </div>
             <div>
                 <label class="block text-[10px] uppercase tracking-widest font-bold mb-2">Password</label>
                 {{ form.password }}
                 {% if form.password.errors %}
-                <p class="text-red-500 text-[10px] mt-1">{{ form.password.errors }}</p>
+                <p class="text-red-600 text-xs mt-2">{{ form.password.errors.0 }}</p>
                 {% endif %}
             </div>
             <button type="submit"

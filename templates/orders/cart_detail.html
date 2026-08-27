@@ -167,6 +167,12 @@
                 <a href="{% url 'orders:order_create' %}"
                     class="w-full bg-jofa-gold text-black py-6 block text-center text-[12px] font-black uppercase tracking-[0.4em] hover:bg-jofa-beige transition-all">Proceed
                     to Checkout</a>
+                {% if not user.is_authenticated %}
+                <p class="text-center text-[10px] text-gray-500 mt-4 uppercase tracking-widest">
+                    Guest checkout available — account optional.
+                    <a href="{% url 'accounts:login' %}?next={% url 'orders:order_create' %}" class="text-jofa-gold underline">Sign in</a>
+                </p>
+                {% endif %}
             </div>
         </div>
         {% endif %}
