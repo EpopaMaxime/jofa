@@ -81,7 +81,7 @@ class ConsultationUploadView(View):
             messages.error(request, 'Consultation not found or access denied.')
             return redirect('consultation:landing')
 
-        action = request.POST.get('action', 'upload')
+        action = request.POST.get('upload_step') or request.POST.get('action', 'upload')
         form = ConsultationPhotoForm(request.POST, request.FILES)
         pending_files = []
         angle = 'face'

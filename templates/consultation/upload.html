@@ -10,7 +10,7 @@
         <p class="mb-10 text-sm max-w-2xl">Select several photos, then click <strong>Upload photos</strong>. Photos are compressed on your device so the host does not block the request. Then click <strong>Run AI analysis</strong>. Up to {{ max_photos }} photos.</p>
         <p id="upload-status" class="hidden mb-6 text-sm font-medium text-jofa-onyx"></p>
 
-        <form method="post" enctype="multipart/form-data" class="grid md:grid-cols-2 gap-10" id="photo-upload-form">
+        <form method="post" action="" enctype="multipart/form-data" class="grid md:grid-cols-2 gap-10" id="photo-upload-form">
             {% csrf_token %}
             <div class="bg-white/40 border border-gray-200 p-8 space-y-6 shadow-xl">
                 <div>
@@ -26,7 +26,7 @@
                     <label class="block text-[10px] uppercase tracking-widest font-bold mb-2">Angle for this batch</label>
                     {{ form.angle }}
                 </div>
-                <button type="submit" name="action" value="upload" class="btn-gold w-full py-4 uppercase text-xs tracking-widest">Upload photos</button>
+                <button type="submit" name="upload_step" value="upload" class="btn-gold w-full py-4 uppercase text-xs tracking-widest">Upload photos</button>
             </div>
 
             <div>
@@ -41,7 +41,7 @@
                     <p class="text-sm text-gray-500 col-span-2">No photos uploaded yet. Select files, then click Upload photos.</p>
                     {% endfor %}
                 </div>
-                <button type="submit" name="action" value="analyze"
+                <button type="submit" name="upload_step" value="analyze"
                     class="w-full border border-jofa-onyx py-4 uppercase text-xs tracking-widest font-black hover:bg-jofa-onyx hover:text-white transition-colors">
                     Run AI analysis
                 </button>
@@ -117,17 +117,18 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    const uploadUrl = window.location.pathname;
+
     async function postForm(formData) {
-        const res = await fetch(form.action || window.location.href, {
+        const res = await fetch(uploadUrl, {
             method: 'POST',
             body: formData,
             credentials: 'same-origin',
             headers: { 'X-Requested-With': 'XMLHttpRequest' },
-            redirect: 'follow',
         });
         const contentType = res.headers.get('content-type') || '';
         if (!contentType.includes('application/json')) {
-            throw new Error('Upload blocked by the server (403). Ask hosting to raise the POST size limit for /consult/.');
+            throw new Error('Upload blocked by the server. Please try a smaller photo or contact support.');
         }
         const data = await res.json();
         if (!res.ok || !data.ok) {
@@ -151,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const compressed = await compressFile(files[i]);
                 const fd = new FormData();
                 fd.append('csrfmiddlewaretoken', csrf);
-                fd.append('action', 'upload');
+                fd.append('upload_step', 'upload');
                 fd.append('angle', angle);
                 fd.append('images', compressed, 'skin.jpg');
                 await postForm(fd);
@@ -160,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 setStatus('Running AI analysis…');
                 const fd = new FormData();
                 fd.append('csrfmiddlewaretoken', csrf);
-                fd.append('action', 'analyze');
+                fd.append('upload_step', 'analyze');
                 fd.append('angle', angle);
                 const data = await postForm(fd);
                 if (data.redirect) {
