@@ -107,19 +107,16 @@ class Command(BaseCommand):
             matched = set()
             blob = f'{product.name} {product.description} {product.ingredients}'.lower()
             for concern in concerns.values():
-                if product.skin_type in concern.skin_type_list() or product.skin_type == 'all':
-                    if any(kw in blob for kw in concern.keyword_list()) or product.skin_type in concern.skin_type_list():
-                        matched.add(concern.code)
                 if any(kw in blob for kw in concern.keyword_list()):
                     matched.add(concern.code)
-            if not matched and product.skin_type == 'dry':
-                matched.update(['dehydration', 'dullness'])
-            if not matched and product.skin_type == 'oily':
-                matched.update(['acne', 'excess-oil'])
-            if not matched and product.skin_type == 'sensitive':
-                matched.update(['sensitivity', 'barrier'])
             if not matched:
-                matched.add('dullness')
+                defaults = {
+                    'dry': ['dehydration'],
+                    'oily': ['acne', 'excess-oil'],
+                    'sensitive': ['sensitivity', 'barrier'],
+                    'combination': ['dehydration', 'excess-oil'],
+                }
+                matched.update(defaults.get(product.skin_type, []))
 
             for idx, code in enumerate(sorted(matched)):
                 _, was_created = ConcernProductMap.objects.update_or_create(
@@ -133,6 +130,12 @@ class Command(BaseCommand):
                 )
                 if was_created:
                     created_maps += 1
+            if matched:
+                ConcernProductMap.objects.filter(product=product).exclude(
+                    concern__code__in=matched
+                ).update(is_active=False)
+            else:
+                ConcernProductMap.objects.filter(product=product).update(is_active=False)
 
         self._seed_routines(concerns)
         self._seed_providers()

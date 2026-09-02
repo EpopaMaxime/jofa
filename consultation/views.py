@@ -6,14 +6,17 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views import View
 from django.views.generic import DetailView, FormView, ListView
+import logging
 
 from orders.cart import Cart
 from recommendations.engine import RecommendationEngine
 from recommendations.models import RoutineBundle
 
-from .ai import SkinAnalyzer
+from .ai import USER_UNAVAILABLE, SkinAnalyzer, SkinAnalysisUnavailable
 from .forms import ConsultationPhotoForm, ConsultationStartForm
 from .models import ConsultationPhoto, SkinConsultation
+
+logger = logging.getLogger('consultation.views')
 
 
 def _wants_json(request):
@@ -148,14 +151,46 @@ class ConsultationUploadView(View):
                 if _wants_json(request):
                     return JsonResponse({'ok': True, 'redirect': results_url})
                 return redirect('consultation:results', public_id=public_id)
-            except Exception as exc:
+            except SkinAnalysisUnavailable as exc:
+                logger.error(
+                    'AI unavailable for %s: %s details=%s',
+                    public_id,
+                    exc.user_message,
+                    exc.details,
+                )
                 consultation.status = 'failed'
-                consultation.analysis_summary = str(exc)
-                consultation.save(update_fields=['status', 'analysis_summary'])
-                msg = 'Analysis failed. Please try again.'
+                consultation.analysis_summary = exc.user_message
+                consultation.analysis_payload = {'error': exc.details}
+                consultation.analyzer_backend = 'unavailable'
+                consultation.save(
+                    update_fields=[
+                        'status',
+                        'analysis_summary',
+                        'analysis_payload',
+                        'analyzer_backend',
+                    ]
+                )
                 if _wants_json(request):
-                    return JsonResponse({'ok': False, 'message': msg}, status=500)
-                messages.error(request, msg)
+                    return JsonResponse({'ok': False, 'message': exc.user_message}, status=503)
+                messages.error(request, exc.user_message)
+                return redirect('consultation:upload', public_id=public_id)
+            except Exception as exc:
+                logger.exception('Unexpected consultation analysis error for %s', public_id)
+                consultation.status = 'failed'
+                consultation.analysis_summary = USER_UNAVAILABLE
+                consultation.analysis_payload = {'error': {'reason': 'unexpected', 'error': str(exc)}}
+                consultation.analyzer_backend = 'unavailable'
+                consultation.save(
+                    update_fields=[
+                        'status',
+                        'analysis_summary',
+                        'analysis_payload',
+                        'analyzer_backend',
+                    ]
+                )
+                if _wants_json(request):
+                    return JsonResponse({'ok': False, 'message': USER_UNAVAILABLE}, status=503)
+                messages.error(request, USER_UNAVAILABLE)
                 return redirect('consultation:upload', public_id=public_id)
 
         if _wants_json(request):

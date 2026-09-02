@@ -1,5 +1,4 @@
 from django.db.models import Prefetch, Q
-from products.models import Product
 from .models import ConcernProductMap, RoutineBundle, RoutineStep, SkinConcern
 
 
@@ -12,6 +11,8 @@ class RecommendationEngine:
 
     def products_for_concerns(self, concern_codes, skin_type=None):
         codes = [c for c in concern_codes if c]
+        if not codes:
+            return []
         maps = (
             ConcernProductMap.objects.filter(
                 is_active=True,
@@ -26,26 +27,21 @@ class RecommendationEngine:
         seen = set()
         products = []
         for mapping in maps:
+            product = mapping.product
             if mapping.product_id in seen:
                 continue
+            if not self._skin_compatible(product.skin_type, skin_type):
+                continue
             seen.add(mapping.product_id)
-            products.append(mapping.product)
+            products.append(product)
             if len(products) >= self.total_limit:
                 break
-
-        if len(products) < self.total_limit:
-            products.extend(
-                self._fallback_by_skin_type(skin_type, seen, self.total_limit - len(products))
-            )
         return products
 
-    def _fallback_by_skin_type(self, skin_type, exclude_ids, limit):
-        if limit <= 0:
-            return []
-        qs = Product.objects.filter(available=True).exclude(id__in=exclude_ids)
-        if skin_type and skin_type != 'all':
-            qs = qs.filter(Q(skin_type=skin_type) | Q(skin_type='all'))
-        return list(qs.order_by('-featured', '-created_at')[:limit])
+    def _skin_compatible(self, product_skin_type, profile_skin_type):
+        if not profile_skin_type or profile_skin_type in ('all', ''):
+            return True
+        return product_skin_type in ('all', profile_skin_type)
 
     def routines_for_profile(self, concern_codes=None, skin_type=None, limit=3):
         steps_qs = RoutineStep.objects.select_related('product').prefetch_related(
@@ -58,9 +54,9 @@ class RecommendationEngine:
         if skin_type:
             qs = qs.filter(Q(skin_type=skin_type) | Q(skin_type='') | Q(skin_type='all'))
         if concern_codes:
-            matched = qs.filter(concerns__code__in=concern_codes).distinct()
-            if matched.exists():
-                qs = matched
+            qs = qs.filter(concerns__code__in=concern_codes).distinct()
+        else:
+            return []
         return list(qs.order_by('-featured', 'name')[:limit])
 
     def complementary_for_product(self, product, limit=4):
@@ -87,13 +83,7 @@ class RecommendationEngine:
                 out.append(m.product)
                 if len(out) >= limit:
                     return out
-        return list(
-            Product.objects.filter(
-                available=True, category=product.category
-            )
-            .exclude(id=product.id)
-            .order_by('-featured')[:limit]
-        )
+        return out if concern_ids else []
 
     def build_payload(self, concern_codes, skin_type=None):
         products = self.products_for_concerns(concern_codes, skin_type=skin_type)
