@@ -215,3 +215,34 @@ STRIPE_CURRENCY = os.getenv('STRIPE_CURRENCY', 'xaf')
 # Delivery
 DELIVERY_PROVIDER = os.getenv('DELIVERY_PROVIDER', 'manual')  # manual | mock_courier
 DELIVERY_CARRIER_NAME = os.getenv('DELIVERY_CARRIER_NAME', 'Partner Courier')
+
+LOGS_DIR = BASE_DIR / 'logs'
+LOGS_DIR.mkdir(exist_ok=True)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{asctime} [{levelname}] {name} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'consultation_file': {
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': str(LOGS_DIR / 'consultation.log'),
+            'maxBytes': 5 * 1024 * 1024,
+            'backupCount': 10,
+            'encoding': 'utf-8',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'consultation': {
+            'handlers': ['consultation_file'],
+            'level': os.getenv('JOFA_CONSULTATION_LOG_LEVEL', 'INFO'),
+            'propagate': False,
+        },
+    },
+}
