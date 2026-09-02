@@ -238,7 +238,14 @@ class SkinAnalyzer:
             )
 
         genai.configure(api_key=settings.GEMINI_API_KEY)
-        model_name = getattr(settings, 'GEMINI_MODEL', 'gemini-2.0-flash')
+        model_name = (getattr(settings, 'GEMINI_MODEL', None) or 'gemini-3.6-flash').strip()
+        if model_name.startswith('models/'):
+            model_name = model_name[len('models/') :]
+        logger.info(
+            'Using Gemini model %s for consultation %s',
+            model_name,
+            consultation.public_id,
+        )
         model = genai.GenerativeModel(model_name)
         parts = [self._prompt_text(consultation), *images]
         generation_config = {

@@ -200,8 +200,12 @@ DEFAULT_FROM_EMAIL = os.getenv(
 ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', 'jofaskincare@gmail.com')
 
 # AI Skin Consultation (Google Gemini)
+# Model id, e.g. gemini-3.6-flash or models/gemini-3.6-flash
+_raw_gemini_model = (os.getenv('GEMINI_MODEL') or 'gemini-3.6-flash').strip()
+if _raw_gemini_model.startswith('models/'):
+    _raw_gemini_model = _raw_gemini_model[len('models/') :]
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
-GEMINI_MODEL = os.getenv('GEMINI_MODEL', 'gemini-2.0-flash')
+GEMINI_MODEL = _raw_gemini_model or 'gemini-3.6-flash'
 CONSULTATION_MAX_PHOTOS = int(os.getenv('CONSULTATION_MAX_PHOTOS', '4'))
 
 # Payments / multi-vendor gateways: cod | stripe | simulate
