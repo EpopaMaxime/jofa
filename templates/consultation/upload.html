@@ -3,6 +3,14 @@
 {% block title %}Upload Photos | JOFA{% endblock %}
 
 {% block content %}
+<div id="analysis-overlay" class="hidden fixed inset-0 z-[200] bg-jofa-onyx/80 backdrop-blur-sm flex items-center justify-center px-6" aria-live="assertive">
+    <div class="bg-jofa-beige max-w-md w-full p-10 text-center shadow-2xl">
+        <div class="mx-auto mb-6 h-14 w-14 rounded-full border-4 border-jofa-gold/30 border-t-jofa-gold animate-spin"></div>
+        <p class="text-[10px] uppercase tracking-[0.35em] font-black text-jofa-gold mb-3">AI consultation</p>
+        <h2 id="overlay-title" class="text-2xl serif mb-3">Analysing your photos</h2>
+        <p id="overlay-text" class="text-sm text-gray-600">Please wait. This can take up to a minute. Do not close this page.</p>
+    </div>
+</div>
 <section class="py-20 bg-jofa-beige">
     <div class="container mx-auto px-6 md:px-12 max-w-4xl">
         <p class="text-[11px] uppercase tracking-[0.3em] font-black text-jofa-gold mb-4">Step 2 of 3</p>
@@ -26,7 +34,7 @@
                     <label class="block text-[10px] uppercase tracking-widest font-bold mb-2">Angle for this batch</label>
                     {{ form.angle }}
                 </div>
-                <button type="submit" name="upload_step" value="upload" class="btn-gold w-full py-4 uppercase text-xs tracking-widest">Upload photos</button>
+                <button type="submit" name="upload_step" value="upload" class="btn-gold w-full py-4 uppercase text-xs tracking-widest disabled:opacity-40 disabled:pointer-events-none">Upload photos</button>
             </div>
 
             <div>
@@ -42,7 +50,7 @@
                     {% endfor %}
                 </div>
                 <button type="submit" name="upload_step" value="analyze"
-                    class="w-full border border-jofa-onyx py-4 uppercase text-xs tracking-widest font-black hover:bg-jofa-onyx hover:text-white transition-colors">
+                    class="w-full border border-jofa-onyx py-4 uppercase text-xs tracking-widest font-black hover:bg-jofa-onyx hover:text-white transition-colors disabled:opacity-40 disabled:pointer-events-none disabled:hover:bg-transparent disabled:hover:text-inherit">
                     Run AI analysis
                 </button>
                 <p class="text-[10px] text-gray-500 mt-3">Selected files are compressed and sent one by one, then analysis starts.</p>
@@ -67,6 +75,19 @@ document.addEventListener('DOMContentLoaded', function () {
     const preview = document.getElementById('photo-preview');
     const statusEl = document.getElementById('upload-status');
     const csrf = form.querySelector('[name=csrfmiddlewaretoken]').value;
+    const overlay = document.getElementById('analysis-overlay');
+    const overlayTitle = document.getElementById('overlay-title');
+    const overlayText = document.getElementById('overlay-text');
+    const controls = form.querySelectorAll('button, input, select, textarea');
+
+    function setBusy(busy, title, text) {
+        controls.forEach(function (el) { el.disabled = !!busy; });
+        form.setAttribute('aria-busy', busy ? 'true' : 'false');
+        if (overlay) overlay.classList.toggle('hidden', !busy);
+        if (busy && overlayTitle && title) overlayTitle.textContent = title;
+        if (busy && overlayText && text) overlayText.textContent = text;
+        document.body.style.overflow = busy ? 'hidden' : '';
+    }
 
     function setStatus(text, isError) {
         statusEl.classList.remove('hidden');
@@ -143,12 +164,18 @@ document.addEventListener('DOMContentLoaded', function () {
         const action = (submitter && submitter.value) || 'upload';
         const files = Array.from((input && input.files) || []);
         const angle = form.querySelector('[name=angle]').value;
-        const buttons = form.querySelectorAll('button[type=submit]');
-        buttons.forEach(function (btn) { btn.disabled = true; });
+        if (action === 'analyze') {
+            setBusy(true, 'Analysing your photos', 'Please wait. This can take up to a minute. Do not close this page.');
+        } else {
+            setBusy(true, 'Uploading photos', 'Compressing and sending your photos…');
+        }
 
         try {
             for (let i = 0; i < files.length; i++) {
                 setStatus('Compressing and uploading photo ' + (i + 1) + ' of ' + files.length + '…');
+                if (overlayText) {
+                    overlayText.textContent = 'Uploading photo ' + (i + 1) + ' of ' + files.length + '…';
+                }
                 const compressed = await compressFile(files[i]);
                 const fd = new FormData();
                 fd.append('csrfmiddlewaretoken', csrf);
@@ -159,20 +186,23 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             if (action === 'analyze') {
                 setStatus('Running AI analysis…');
+                if (overlayTitle) overlayTitle.textContent = 'Analysing your photos';
+                if (overlayText) overlayText.textContent = 'The AI is reviewing your images. Please wait…';
                 const fd = new FormData();
                 fd.append('csrfmiddlewaretoken', csrf);
                 fd.append('upload_step', 'analyze');
                 fd.append('angle', angle);
                 const data = await postForm(fd);
                 if (data.redirect) {
+                    if (overlayText) overlayText.textContent = 'Almost done. Opening your results…';
                     window.location.href = data.redirect;
                     return;
                 }
             }
             window.location.reload();
         } catch (err) {
+            setBusy(false);
             setStatus(err.message || 'Upload failed.', true);
-            buttons.forEach(function (btn) { btn.disabled = false; });
         }
     });
 });

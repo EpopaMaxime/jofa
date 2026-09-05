@@ -207,6 +207,7 @@ if _raw_gemini_model.startswith('models/'):
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
 GEMINI_MODEL = _raw_gemini_model or 'gemini-3.6-flash'
 CONSULTATION_MAX_PHOTOS = int(os.getenv('CONSULTATION_MAX_PHOTOS', '4'))
+GEMINI_MAX_OUTPUT_TOKENS = int(os.getenv('GEMINI_MAX_OUTPUT_TOKENS', '8192'))
 
 # Payments / multi-vendor gateways: cod | stripe | simulate
 PAYMENT_PROVIDER = os.getenv('PAYMENT_PROVIDER', 'cod')

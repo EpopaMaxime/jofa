@@ -138,9 +138,6 @@ class SkinAnalyzer:
                     'id': mapping.product_id,
                     'name': mapping.product.name,
                     'skin_type': mapping.product.skin_type,
-                    'category': mapping.product.category.name
-                    if mapping.product.category_id
-                    else '',
                     'concerns': [],
                 },
             )
@@ -150,40 +147,28 @@ class SkinAnalyzer:
 
     def _prompt_text(self, consultation) -> str:
         concern_catalog = list(
-            SkinConcern.objects.filter(is_active=True).values(
-                'code', 'name', 'description'
-            )
+            SkinConcern.objects.filter(is_active=True).values('code', 'name')
         )
         product_catalog = self._catalog_for_prompt()
         return (
             'You are a cosmetic dermatology assistant for JOFA skincare. '
-            'You MUST visually inspect every attached skin photo before answering. '
-            'Do not invent findings that are not visible. '
-            'Do not recommend products that do not match the visible concerns. '
-            'Questionnaire context is secondary to the photos.\n'
-            'Respond ONLY with valid JSON:\n'
-            '{'
-            '"skin_type":"dry|oily|sensitive|combination|all",'
-            '"concern_codes":["code",...],'
+            'Inspect every attached skin photo. Do not invent findings. '
+            'Reply with ONE compact JSON object and nothing else.\n'
+            '{"skin_type":"dry|oily|sensitive|combination|all",'
+            '"concern_codes":["acne"],'
             '"product_ids":[1,2],'
-            '"confidence":0.0-1.0,'
-            '"summary":"2-4 sentences for the customer about what you saw on the photos",'
-            '"concerns_detail":[{"code":"","label":"","severity":"low|medium|high","notes":""}],'
-            '"photo_quality":"good|fair|poor"'
-            '}\n'
-            'Rules:\n'
-            '- concern_codes: only from the allowed list, only what the photos support.\n'
-            '- product_ids: only ids from the catalog below, and only products whose '
-            '"concerns" overlap concern_codes. Maximum 6 products. Never pad with unrelated items.\n'
-            '- If photos are too blurry or not of skin, set photo_quality to poor, '
-            'confidence below 0.4, and an empty product_ids list.\n'
-            f'Allowed concerns: {json.dumps(concern_catalog)}\n'
+            '"confidence":0.8,'
+            '"summary":"one short sentence of what you saw",'
+            '"photo_quality":"good|fair|poor"}\n'
+            'Rules: only allowed concern codes; product_ids only from catalog and '
+            'matching those concerns; max 5 product_ids; summary max 200 chars; '
+            'no extra keys.\n'
+            f'Concerns: {json.dumps(concern_catalog)}\n'
             f'Catalog: {json.dumps(product_catalog)}\n'
-            f'Declared skin type (secondary): {consultation.declared_skin_type or "unknown"}\n'
-            f'Age range: {consultation.age_range or "unknown"}\n'
-            f'Goals (secondary): {consultation.primary_goals or "none"}\n'
-            f'Sensitivity 1-5: {consultation.sensitivity_level}\n'
-            'Do not diagnose medical conditions.'
+            f'Declared skin type: {consultation.declared_skin_type or "unknown"}\n'
+            f'Age: {consultation.age_range or "unknown"}\n'
+            f'Goals: {consultation.primary_goals or "none"}\n'
+            f'Sensitivity 1-5: {consultation.sensitivity_level}'
         )
 
     def _load_photo_images(self, consultation):
@@ -208,17 +193,32 @@ class SkinAnalyzer:
 
     def _gemini_response_dump(self, response) -> dict:
         dump = {}
-        try:
-            dump['text'] = getattr(response, 'text', None)
-        except Exception as exc:
-            dump['text_error'] = str(exc)
+        dump['text'] = self._collect_response_text(response)
         prompt_feedback = getattr(response, 'prompt_feedback', None)
         if prompt_feedback is not None:
             dump['prompt_feedback'] = str(prompt_feedback)
         candidates = getattr(response, 'candidates', None)
         if candidates:
             dump['candidates'] = [str(c) for c in candidates[:3]]
+            dump['finish_reason'] = str(
+                getattr(candidates[0], 'finish_reason', '') or ''
+            )
         return dump
+
+    def _collect_response_text(self, response) -> str:
+        parts_text = []
+        for cand in getattr(response, 'candidates', None) or []:
+            content = getattr(cand, 'content', None)
+            for part in getattr(content, 'parts', None) or []:
+                text = getattr(part, 'text', None)
+                if text:
+                    parts_text.append(text)
+        if parts_text:
+            return ''.join(parts_text)
+        try:
+            return getattr(response, 'text', None) or ''
+        except Exception:
+            return ''
 
     def _analyze_gemini(self, consultation) -> dict:
         import google.generativeai as genai
@@ -250,7 +250,9 @@ class SkinAnalyzer:
         parts = [self._prompt_text(consultation), *images]
         generation_config = {
             'temperature': 0.1,
-            'max_output_tokens': 2048,
+            'max_output_tokens': int(
+                getattr(settings, 'GEMINI_MAX_OUTPUT_TOKENS', 8192) or 8192
+            ),
             'response_mime_type': 'application/json',
         }
         try:
@@ -297,22 +299,31 @@ class SkinAnalyzer:
         try:
             data = self._extract_json(text)
         except Exception as exc:
-            logger.error(
-                'Invalid Gemini JSON for consultation %s: %s raw=%s dump=%s',
-                consultation.public_id,
-                exc,
-                text[:4000],
-                dump,
-            )
-            raise SkinAnalysisUnavailable(
-                USER_UNAVAILABLE,
-                details={
-                    'reason': 'invalid_gemini_json',
-                    'error': str(exc),
-                    'raw_text': text[:4000],
-                    'gemini_response': dump,
-                },
-            ) from exc
+            repaired = self._repair_truncated_json(text)
+            if repaired:
+                logger.warning(
+                    'Repaired truncated Gemini JSON for consultation %s finish=%s',
+                    consultation.public_id,
+                    dump.get('finish_reason'),
+                )
+                data = repaired
+            else:
+                logger.error(
+                    'Invalid Gemini JSON for consultation %s: %s raw=%s dump=%s',
+                    consultation.public_id,
+                    exc,
+                    text[:4000],
+                    dump,
+                )
+                raise SkinAnalysisUnavailable(
+                    USER_UNAVAILABLE,
+                    details={
+                        'reason': 'invalid_gemini_json',
+                        'error': str(exc),
+                        'raw_text': text[:4000],
+                        'gemini_response': dump,
+                    },
+                ) from exc
 
         if (data.get('photo_quality') or '').lower() == 'poor':
             logger.warning(
@@ -355,3 +366,30 @@ class SkinAnalyzer:
         if not isinstance(parsed, dict):
             raise ValueError('Gemini JSON was not an object')
         return parsed
+
+    def _repair_truncated_json(self, text: str) -> dict | None:
+        """Salvage skin_type / concern_codes / product_ids from MAX_TOKENS cuts."""
+        skin = re.search(r'"skin_type"\s*:\s*"([^"]+)"', text)
+        codes_match = re.search(r'"concern_codes"\s*:\s*\[(.*?)\]', text, re.DOTALL)
+        ids_match = re.search(r'"product_ids"\s*:\s*\[([\s\d,]*)', text)
+        concern_codes = []
+        if codes_match:
+            concern_codes = re.findall(r'"([a-z0-9\-]+)"', codes_match.group(1), re.I)
+        product_ids = []
+        if ids_match:
+            product_ids = [int(n) for n in re.findall(r'\d+', ids_match.group(1))]
+        if not concern_codes:
+            return None
+        conf_match = re.search(r'"confidence"\s*:\s*([0-9.]+)', text)
+        quality = re.search(r'"photo_quality"\s*:\s*"([^"]+)"', text)
+        summary_match = re.search(r'"summary"\s*:\s*"([^"]*)', text)
+        return {
+            'skin_type': skin.group(1) if skin else 'all',
+            'concern_codes': concern_codes,
+            'product_ids': product_ids,
+            'confidence': float(conf_match.group(1)) if conf_match else 0.7,
+            'summary': (summary_match.group(1) if summary_match else '').strip()
+            or 'We analysed your photos and matched JOFA products to the concerns we found.',
+            'photo_quality': quality.group(1) if quality else 'good',
+            'truncated_repaired': True,
+        }
