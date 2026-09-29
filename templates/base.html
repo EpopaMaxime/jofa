@@ -354,16 +354,25 @@
         {% if messages %}
         <div class="fixed top-32 left-1/2 transform -translate-x-1/2 z-[100] w-full max-w-xl px-6">
             {% for message in messages %}
-            <div class="relative p-6 mb-4 rounded-sm shadow-2xl flex items-center justify-between animate-fade-in-down border-l-4 {% if message.tags == 'success' %}bg-white border-green-500 text-gray-800{% else %}bg-white border-red-500 text-gray-800{% endif %}"
+            <div class="relative p-6 mb-4 rounded-sm shadow-2xl flex items-center justify-between animate-fade-in-down border-l-4 bg-white text-gray-800 {% if 'success' in message.tags %}border-green-500{% elif 'error' in message.tags %}border-red-500{% elif 'warning' in message.tags %}border-amber-500{% else %}border-blue-500{% endif %}"
                  id="message-{{ forloop.counter }}">
                 <div class="flex items-center">
-                    {% if message.tags == 'success' %}
+                    {% if 'success' in message.tags %}
                     <svg class="w-6 h-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
-                    {% else %}
+                    {% elif 'error' in message.tags %}
                     <svg class="w-6 h-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    {% elif 'warning' in message.tags %}
+                    <svg class="w-6 h-6 text-amber-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v4m0 4h.01M10.3 3.9 2.5 17.4A2 2 0 0 0 4.2 20h15.6a2 2 0 0 0 1.7-2.6L13.7 3.9a2 2 0 0 0-3.4 0Z" />
+                    </svg>
+                    {% else %}
+                    <svg class="w-6 h-6 text-blue-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <circle cx="12" cy="12" r="10" stroke-width="2" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16v-4m0-4h.01" />
                     </svg>
                     {% endif %}
                     <p class="text-[10px] font-black uppercase tracking-[0.2em]">{{ message }}</p>

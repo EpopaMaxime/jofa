@@ -32,6 +32,7 @@ class TeamMember(models.Model):
     expertise = models.CharField(max_length=255, blank=True, null=True)
     linkedin_url = models.URLField(blank=True, null=True)
     instagram_url = models.URLField(blank=True, null=True)
+    facebook_url = models.URLField(blank=True, null=True)
     image = models.ImageField(upload_to='team/', blank=True, null=True)
     order = models.PositiveIntegerField(default=0)
 
@@ -86,3 +87,16 @@ class ContactMessage(models.Model):
 
     def __str__(self):
         return f"Message from {self.name} - {self.email}"
+
+
+class Announcement(models.Model):
+    text = models.CharField(max_length=255)
+    active = models.BooleanField(default=True)
+    order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order', '-created_at']
+
+    def __str__(self):
+        return self.text
